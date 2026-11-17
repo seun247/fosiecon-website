@@ -606,11 +606,21 @@ async function adminLoadNewsList() {
         <td style="padding:10px;font-size:13px;">${esc(a.title)} <span class="badge-${a.status === 'published' ? 'active' : 'draft'}">${a.status}</span></td>
         <td style="padding:10px;text-align:right;white-space:nowrap;">
           <button class="btn-outline" style="padding:5px 10px;font-size:12px;" onclick="adminEditNews('${a._id}')">Edit</button>
-          <button class="btn-danger" style="padding:5px 10px;font-size:12px;" onclick="adminDeleteNews('${a._id}')">Delete</button>
+          ${a.status !== 'published' ? `<button class="btn-outline" style="padding:5px 10px;font-size:12px;margin-left:6px;" onclick="adminPublishNews('${a._id}')">Publish</button>` : ''}
+          <button class="btn-danger" style="padding:5px 10px;font-size:12px;margin-left:6px;" onclick="adminDeleteNews('${a._id}')">Delete</button>
         </td>
       </tr>`).join('')}</table>` : '<p class="empty-state">No articles yet.</p>';
   } catch (err) { document.getElementById('admin-news-list').innerHTML = `<p class="error-state">${esc(err.message)}</p>`; }
 }
+
+window.adminPublishNews = async function (id) {
+  try {
+    await api.news.publish(id);
+    adminLoadNewsList();
+  } catch (err) {
+    alert('Could not publish: ' + err.message);
+  }
+};
 
 window.adminResetNews = function () {
   editingNewsId = null;
