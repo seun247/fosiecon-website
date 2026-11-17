@@ -993,17 +993,55 @@ async function adminRenderDownloads() {
   const el = adminContent();
   el.innerHTML = adminFormShell('Add Document', `
     <form id="admin-downloads-form" onsubmit="adminSaveDownload(event)">
+      <div class="form-group" style="background:var(--ivory);padding:16px;border-radius:8px;">
+        <label>Auto-fill from a Link (a direct file link, or a Google Drive / Dropbox share link) — use this instead of uploading a file below</label>
+        <div style="display:flex;gap:8px;">
+          <input type="url" id="ad-link-url" placeholder="https://…" style="flex:1;">
+          <button type="button" class="btn-outline" onclick="adminExtractDownloadLink()" id="ad-extract-btn" style="white-space:nowrap;">Extract</button>
+        </div>
+        <span id="ad-link-status" style="font-size:12px;color:var(--slate-light);"></span>
+        <input type="hidden" id="ad-extracted-path" value="">
+        <input type="hidden" id="ad-extracted-size" value="">
+      </div>
       <div class="form-group"><label>Title</label><input type="text" id="ad-title" required></div>
       <div class="form-group"><label>Category</label>
         <select id="ad-category"><option value="communique">Communiqué</option><option value="constitution">Constitution</option><option value="guideline">Guideline</option><option value="report">Report</option><option value="policy">Policy</option><option value="notice">Notice</option><option value="other">Other</option></select>
       </div>
-      <div class="form-group"><label>File (PDF, DOCX, XLSX)</label><input type="file" id="ad-file" accept=".pdf,.docx,.xlsx" required></div>
+      <div class="form-group"><label>File (PDF, DOCX, XLSX) — leave blank if you used the link above</label><input type="file" id="ad-file" accept=".pdf,.docx,.xlsx"></div>
       <button class="btn-primary" type="submit">Upload Document</button>
       <div class="form-error" id="ad-error"></div>
     </form>`);
   el.innerHTML += '<div id="admin-downloads-list"><div class="loading">Loading…</div></div>';
   await adminLoadDownloadsList();
 }
+
+// Pastes a link to an externally-hosted document and auto-fills the title
+// and (when detectable) file size, as an alternative to uploading a file.
+window.adminExtractDownloadLink = async function () {
+  const status = document.getElementById('ad-link-status');
+  const url = document.getElementById('ad-link-url').value.trim();
+  if (!url) { if (status) status.textContent = '❌ Paste a link first.'; return; }
+
+  const btn = document.getElementById('ad-extract-btn');
+  btn.disabled = true; btn.textContent = 'Extracting…';
+  if (status) status.textContent = '';
+
+  try {
+    const { data } = await api.downloads.extractLink(url);
+    if (data.title) document.getElementById('ad-title').value = data.title;
+    document.getElementById('ad-extracted-path').value = data.filePath;
+    document.getElementById('ad-extracted-size').value = data.fileSize || '';
+    if (status) {
+      status.textContent = data.isDirectFile
+        ? `✅ File detected${data.fileSize ? ' (' + data.fileSize + ')' : ''} — review the title and category, then save.`
+        : '✅ Link attached — review the title and category, then save.';
+    }
+  } catch (err) {
+    if (status) status.textContent = '❌ Extraction failed: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Extract';
+  }
+};
 
 async function adminLoadDownloadsList() {
   try {
@@ -1020,13 +1058,30 @@ window.adminSaveDownload = async function (e) {
   e.preventDefault();
   const errorEl = document.getElementById('ad-error');
   errorEl.style.display = 'none';
+
+  const fileInput = document.getElementById('ad-file');
+  const extractedPath = document.getElementById('ad-extracted-path').value;
+  if (!fileInput.files[0] && !extractedPath) {
+    errorEl.textContent = 'Upload a file or extract one from a link above.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
   const fd = new FormData();
   fd.append('title', document.getElementById('ad-title').value);
   fd.append('category', document.getElementById('ad-category').value);
-  fd.append('document', document.getElementById('ad-file').files[0]);
+  if (fileInput.files[0]) {
+    fd.append('document', fileInput.files[0]);
+  } else {
+    fd.append('filePath', extractedPath);
+    fd.append('fileSize', document.getElementById('ad-extracted-size').value);
+  }
   try {
     await api.downloads.create(fd);
     document.getElementById('admin-downloads-form').reset();
+    document.getElementById('ad-extracted-path').value = '';
+    document.getElementById('ad-extracted-size').value = '';
+    document.getElementById('ad-link-status').textContent = '';
     adminLoadDownloadsList();
   } catch (err) { errorEl.textContent = err.message; errorEl.style.display = 'block'; }
 };

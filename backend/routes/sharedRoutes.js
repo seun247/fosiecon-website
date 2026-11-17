@@ -73,6 +73,72 @@ downloadsRouter.get('/', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// @route   POST /api/downloads/extract-link
+// @desc    Given an external URL (a direct file like a PDF, or a landing
+//          page like a Google Drive/Dropbox share link), try to pull out a
+//          title and file size so the admin can link to an externally-
+//          hosted document instead of uploading one.
+// @access  Private (admin+)
+downloadsRouter.post('/extract-link', protect, authorize('super_admin', 'admin', 'staff'), async (req, res, next) => {
+  try {
+    const { url } = req.body;
+    if (!url || !/^https?:\/\//i.test(url)) {
+      return res.status(400).json({ success: false, message: 'A valid http(s) URL is required.' });
+    }
+
+    const titleFromPath = () => {
+      try {
+        const last = decodeURIComponent(new URL(url).pathname.split('/').filter(Boolean).pop() || '');
+        return last.replace(/\.[a-z0-9]+$/i, '').replace(/[-_]+/g, ' ').trim();
+      } catch { return ''; }
+    };
+
+    const headRes = await fetch(url, { method: 'HEAD', redirect: 'follow' });
+    const contentType = headRes.headers.get('content-type') || '';
+    const contentLength = headRes.headers.get('content-length');
+    const fileSize = contentLength
+      ? (contentLength / (1024 * 1024) > 1
+          ? `${(contentLength / (1024 * 1024)).toFixed(1)} MB`
+          : `${Math.round(contentLength / 1024)} KB`)
+      : '';
+
+    const isDirectFile = /application\/pdf|application\/msword|application\/vnd\.(openxmlformats|ms-excel)|image\//i.test(contentType);
+
+    if (isDirectFile) {
+      return res.json({
+        success: true,
+        data: { title: titleFromPath(), fileSize, filePath: url, isDirectFile: true },
+      });
+    }
+
+    // Not a direct file (e.g. an HTML landing page for a Drive/Dropbox share
+    // link) — scrape the page title instead, since there's no reliable size.
+    const pageRes = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FOSIECONBot/1.0; +https://fosieconng.org)' },
+      redirect: 'follow',
+    });
+    if (!pageRes.ok) {
+      return res.status(422).json({ success: false, message: `Could not fetch that URL (HTTP ${pageRes.status}).` });
+    }
+    const html = await pageRes.text();
+    const getMeta = (prop) => {
+      const re = new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"']+)["']`, 'i');
+      const m = re.exec(html);
+      return m ? m[1] : '';
+    };
+    const titleTagMatch = /<title>([^<]+)<\/title>/i.exec(html);
+    const title = (getMeta('og:title') || (titleTagMatch ? titleTagMatch[1] : '') || titleFromPath())
+      .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'").trim();
+
+    res.json({ success: true, data: { title, fileSize: '', filePath: url, isDirectFile: false } });
+  } catch (err) {
+    if (err.name === 'TypeError' && /fetch/i.test(err.message)) {
+      return res.status(422).json({ success: false, message: 'Could not reach that URL.' });
+    }
+    next(err);
+  }
+});
+
 downloadsRouter.post(
   '/',
   protect,
@@ -80,14 +146,25 @@ downloadsRouter.post(
   upload.single('document'),
   async (req, res, next) => {
     try {
-      if (!req.file) return res.status(400).json({ success: false, message: 'Document file required.' });
-      const sizeKB = req.file.size / 1024;
-      const fileSize = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${Math.round(sizeKB)} KB`;
+      let filePath, filePublicId, fileSize;
+      if (req.file) {
+        filePath = req.file.path;         // Cloudinary secure URL
+        filePublicId = req.file.filename; // Cloudinary public_id
+        const sizeKB = req.file.size / 1024;
+        fileSize = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${Math.round(sizeKB)} KB`;
+      } else if (req.body.filePath) {
+        // An externally-hosted link (from extract-link, or pasted directly)
+        // rather than an uploaded file.
+        filePath = req.body.filePath;
+        fileSize = req.body.fileSize || undefined;
+      } else {
+        return res.status(400).json({ success: false, message: 'A document file or an external link is required.' });
+      }
 
       const doc = await Download.create({
         ...req.body,
-        filePath: req.file.path,        // Cloudinary secure URL
-        filePublicId: req.file.filename, // Cloudinary public_id
+        filePath,
+        filePublicId,
         fileSize,
         createdBy: req.user._id,
       });

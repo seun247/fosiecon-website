@@ -110,11 +110,12 @@ const api = {
 
   // ── Downloads ───────────────────────────────────────────
   downloads: {
-    getAll:    (params = '') => api.get(`/downloads${params}`),
-    create:    (fd)          => api.upload('/downloads', fd),
-    update:    (id, data)    => api.put(`/downloads/${id}`, data),
-    trackGet:  (id)          => api.get(`/downloads/${id}/download`),
-    delete:    (id)          => api.delete(`/downloads/${id}`),
+    getAll:      (params = '') => api.get(`/downloads${params}`),
+    create:      (fd)          => api.upload('/downloads', fd),
+    update:      (id, data)    => api.put(`/downloads/${id}`, data),
+    trackGet:    (id)          => api.get(`/downloads/${id}/download`),
+    delete:      (id)          => api.delete(`/downloads/${id}`),
+    extractLink: (url)         => api.post('/downloads/extract-link', { url }),
   },
 
   // ── Gallery ─────────────────────────────────────────────
