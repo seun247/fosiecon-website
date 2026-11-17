@@ -354,60 +354,9 @@ window.submitInquiry = async function (e) {
 };
 
 // ============================================================
-// LOGIN / REGISTER
+// LOGIN / REGISTER — moved to login.html + js/auth-page.js, since the
+// login page is now a separate file rather than an SPA section.
 // ============================================================
-window.load_login = async function () {
-  if (Auth.isLoggedIn()) { Router.navigate(Auth.isAdmin() ? 'admin' : 'dashboard'); return; }
-  try {
-    const { data: members } = await api.members.getAll();
-    const select = document.getElementById('reg-commission');
-    if (select) select.innerHTML = '<option value="">— Select —</option>' + members.map((m) => `<option value="${m._id}">${esc(m.state)} — ${esc(m.commissionName)}</option>`).join('');
-  } catch (err) { /* optional field — fine if it stays empty */ }
-};
-
-window.toggleAuthForm = function () {
-  const login = document.getElementById('login-form');
-  const register = document.getElementById('register-form');
-  const isLogin = login.style.display !== 'none';
-  login.style.display = isLogin ? 'none' : '';
-  register.style.display = isLogin ? '' : 'none';
-  setText('auth-heading', isLogin ? 'Create Your Account' : 'Welcome Back');
-  setText('auth-subtext', isLogin ? 'Register as a member-state representative.' : 'Sign in to access your FOSIECON member account.');
-};
-
-window.handleLogin = async function (e) {
-  e.preventDefault();
-  const errorEl = document.getElementById('login-error');
-  errorEl.style.display = 'none';
-  try {
-    const user = await Auth.login(document.getElementById('login-email').value, document.getElementById('login-password').value);
-    renderNavForRole();
-    Router.navigate(['super_admin', 'admin', 'staff'].includes(user.role) ? 'admin' : 'dashboard');
-  } catch (err) {
-    errorEl.textContent = err.message;
-    errorEl.style.display = 'block';
-  }
-};
-
-window.handleRegister = async function (e) {
-  e.preventDefault();
-  const errorEl = document.getElementById('register-error');
-  errorEl.style.display = 'none';
-  try {
-    await Auth.register({
-      fullName: document.getElementById('reg-name').value,
-      email: document.getElementById('reg-email').value,
-      phone: document.getElementById('reg-phone').value,
-      memberCommission: document.getElementById('reg-commission').value || undefined,
-      password: document.getElementById('reg-password').value,
-    });
-    renderNavForRole();
-    Router.navigate('dashboard');
-  } catch (err) {
-    errorEl.textContent = err.message;
-    errorEl.style.display = 'block';
-  }
-};
 
 // ============================================================
 // MEMBER DASHBOARD
@@ -416,7 +365,7 @@ window.load_dashboard = async function () {
   const content = document.getElementById('dashboard-content');
   if (!content) return;
   const user = Auth.getUser();
-  if (!user) { Router.navigate('login'); return; }
+  if (!user) { window.location.href = 'login.html'; return; }
 
   content.innerHTML = `
     <div class="chairman-card" style="grid-template-columns:1fr;max-width:none;text-align:left;">

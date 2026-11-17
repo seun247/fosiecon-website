@@ -1,7 +1,13 @@
 // js/api.js — Centralized API client for FOSIECON frontend
 // All backend calls go through this module
 
-const API_BASE = 'http://localhost:5000/api'; // ← Change to production URL when deployed
+// In production the backend serves this frontend itself (same Express app,
+// same origin), so a relative path avoids CORS entirely. In local dev the
+// frontend runs on its own dev server (e.g. port 4500) while the backend
+// runs separately on 5000, so it needs the full origin.
+const API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:5000/api'
+  : '/api';
 
 const api = {
   // ── Core fetch wrapper ──────────────────────────────────

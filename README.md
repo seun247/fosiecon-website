@@ -87,7 +87,7 @@ Update `API_BASE` at the top of `frontend/js/api.js` to the deployed backend URL
 
 | Account | Email | Password | Role |
 |---|---|---|---|
-| Super Admin | `admin@fosiecon.org.ng` | `Fosiecon@2026` | super_admin |
+| Super Admin | `admin@fosiecon.org` | `Fosiecon@2026` | super_admin |
 | Chairman | `erimamman2@gmail.com` | `Fosiecon@Chairman2026` | admin |
 
 **Change both passwords immediately after first login.**

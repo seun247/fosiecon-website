@@ -79,8 +79,12 @@ const MemberCommissionSchema = new mongoose.Schema(
   }
 );
 
-// Auto-generate slug from state name
-MemberCommissionSchema.pre('save', function (next) {
+// Auto-generate slug from state name. Uses pre('validate') rather than
+// pre('save') so this also runs for insertMany() (used by the seed script),
+// which validates each document but does not trigger save middleware —
+// pre('save') alone left every seeded record with slug: undefined, and the
+// unique index rejected the second one as a duplicate null.
+MemberCommissionSchema.pre('validate', function (next) {
   if (this.isModified('state')) {
     this.slug = this.state.toLowerCase().replace(/[^a-z0-9]/g, '-');
   }

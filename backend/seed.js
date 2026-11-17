@@ -140,12 +140,12 @@ const seed = async () => {
     // ── 3. Seed Super Admin ─────────────────────────────────
     const superAdmin = await User.create({
       fullName: 'FOSIECON Super Admin',
-      email: 'admin@fosiecon.org.ng',
+      email: 'admin@fosiecon.org',
       password: 'Fosiecon@2026',
       role: 'super_admin',
       staffId: 'FOSIECON-SA-001',
     });
-    console.log('✅ Super Admin created → admin@fosiecon.org.ng / Fosiecon@2026');
+    console.log('✅ Super Admin created → admin@fosiecon.org / Fosiecon@2026');
 
     // ── 4. Seed Chairman admin account ─────────────────────
     await User.create({
@@ -204,7 +204,7 @@ const seed = async () => {
 
     console.log('\n🎉 Seed complete!\n');
     console.log('──────────────────────────────────────────────');
-    console.log('  Super Admin   : admin@fosiecon.org.ng');
+    console.log('  Super Admin   : admin@fosiecon.org');
     console.log('  Password      : Fosiecon@2026');
     console.log('  Chairman Login: erimamman2@gmail.com');
     console.log('  Password      : Fosiecon@Chairman2026');

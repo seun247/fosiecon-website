@@ -143,7 +143,11 @@ app.use('/api/*', (req, res) => {
 // ── Serve Frontend in Production ───────────────────────────
 if (process.env.NODE_ENV === 'production') {
   const frontendPath = path.join(__dirname, '..', 'frontend');
-  app.use(express.static(frontendPath));
+  // extensions:['html'] lets an extensionless path (e.g. /login) resolve to
+  // the matching .html file (login.html) before falling through to the SPA
+  // catch-all below — applies to any current or future static page, not
+  // just login.
+  app.use(express.static(frontendPath, { extensions: ['html'] }));
   // SPA fallback — all non-API routes serve index.html so the client-side
   // router can resolve clean paths like /about on direct visit or refresh.
   app.get('*', (req, res) => {

@@ -1,34 +1,32 @@
 // js/router.js — Client-side page router
 const Router = {
   currentPage: 'home',
+  // 'login' is intentionally not in this list — it's a separate static page
+  // (login.html), not an SPA section, so it only ever exists when someone
+  // actually visits it directly.
   pages: ['home', 'about', 'services', 'gallery', 'news', 'testimonials',
-          'faq', 'team', 'events', 'contact', 'login', 'dashboard', 'admin', 'privacy'],
+          'faq', 'team', 'events', 'contact', 'dashboard', 'admin', 'privacy'],
 
   init() {
-    // Read the URL path on load. 'adminlogin' is a hidden entry point to the
-    // portal login page — it's not linked anywhere in the public nav/footer/
-    // search, reachable only by visiting the URL directly.
     const path = window.location.pathname.replace(/^\/|\/$/g, '') || 'home';
-    const resolved = path === 'adminlogin' ? 'login' : path;
-    this.navigate(this.pages.includes(resolved) ? resolved : 'home', false);
+    this.navigate(this.pages.includes(path) ? path : 'home', false);
 
     // Back/forward browser navigation (pushState itself does not fire this).
     window.addEventListener('popstate', () => {
       const path = window.location.pathname.replace(/^\/|\/$/g, '') || 'home';
-      const resolvedPage = path === 'adminlogin' ? 'login' : path;
-      if (this.pages.includes(resolvedPage)) this.navigate(resolvedPage, false);
+      if (this.pages.includes(path)) this.navigate(path, false);
     });
   },
 
   navigate(pageId, updateUrl = true) {
     // Guard admin page
     if (pageId === 'admin' && !Auth.isAdmin()) {
-      this.navigate('login');
+      window.location.href = 'login.html';
       return;
     }
     // Guard member dashboard
     if (pageId === 'dashboard' && !Auth.isLoggedIn()) {
-      this.navigate('login');
+      window.location.href = 'login.html';
       return;
     }
 
