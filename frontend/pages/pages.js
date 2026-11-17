@@ -475,6 +475,20 @@ async function adminRenderNews() {
   const el = adminContent();
   el.innerHTML = adminFormShell('Add / Edit Article', `
     <form id="admin-news-form" onsubmit="adminSaveNews(event)">
+      <div class="form-group" style="background:var(--ivory);padding:16px;border-radius:8px;">
+        <label>Auto-fill from a Link (news article, YouTube/Vimeo URL, or a direct video/audio file link e.g. from Cloudinary)</label>
+        <div style="display:flex;gap:8px;">
+          <input type="url" id="an-link-url" placeholder="https://…" style="flex:1;">
+          <button type="button" class="btn-outline" onclick="adminExtractNewsLink()" id="an-extract-btn" style="white-space:nowrap;">Extract</button>
+        </div>
+        <div id="an-link-preview" style="margin-top:10px;display:none;">
+          <img id="an-link-preview-img" style="max-width:160px;max-height:100px;border-radius:6px;display:block;margin-bottom:6px;object-fit:cover;">
+        </div>
+        <span id="an-link-status" style="font-size:12px;color:var(--slate-light);"></span>
+        <input type="hidden" id="an-extracted-image" value="">
+        <input type="hidden" id="an-extracted-media-url" value="">
+        <input type="hidden" id="an-extracted-media-type" value="">
+      </div>
       <div class="form-group"><label>Title</label><input type="text" id="an-title" required></div>
       <div class="form-row">
         <div class="form-group"><label>Category</label>
@@ -497,6 +511,14 @@ async function adminRenderNews() {
       <div class="form-group"><label>Excerpt</label><textarea id="an-excerpt" maxlength="500"></textarea></div>
       <div class="form-group"><label>Content</label><textarea id="an-content" required style="min-height:200px;"></textarea></div>
       <div class="form-group"><label>Featured Image</label><input type="file" id="an-image" accept="image/*"></div>
+      <div class="form-group">
+        <label>Video or Audio Attachment (optional — plays in the article modal)</label>
+        <input type="file" id="an-media" accept="video/mp4,video/webm,video/quicktime,.mov,.m4v,audio/mpeg,audio/wav,audio/mp4,.m4a,audio/ogg,audio/aac">
+        <div id="an-media-current" style="display:none;margin-top:8px;font-size:12px;color:var(--slate-light);">
+          🎬 Current attachment: <span id="an-media-current-label"></span>
+          &nbsp;<label style="display:inline-flex;align-items:center;gap:4px;font-weight:normal;"><input type="checkbox" id="an-media-remove" style="width:auto;">Remove it</label>
+        </div>
+      </div>
       <button class="btn-primary" type="submit">Save Article</button>
       <button class="btn-outline" type="button" onclick="adminResetNews()">New Article</button>
       <div class="form-error" id="an-error"></div>
@@ -504,6 +526,77 @@ async function adminRenderNews() {
   el.innerHTML += '<div id="admin-news-list"><div class="loading">Loading…</div></div>';
   await adminLoadNewsList();
 }
+
+// Pastes a link and auto-fills title/excerpt/content/image, or attaches a
+// direct video/audio file link — mirrors KOSIEC's admin news "Extract" flow.
+window.adminExtractNewsLink = async function () {
+  const status = document.getElementById('an-link-status');
+  const url = document.getElementById('an-link-url').value.trim();
+  if (!url) { if (status) status.textContent = '❌ Paste a link first.'; return; }
+
+  const btn = document.getElementById('an-extract-btn');
+  btn.disabled = true; btn.textContent = 'Extracting…';
+  if (status) status.textContent = '';
+
+  try {
+    const { data } = await api.news.extractLink(url);
+
+    if (data.title) document.getElementById('an-title').value = data.title;
+    if (data.excerpt) document.getElementById('an-excerpt').value = data.excerpt;
+
+    if (data.isDirectMedia) {
+      // A direct video/audio file link (e.g. copied from Cloudinary) — plays via
+      // the same mediaType/mediaUrl mechanism a real upload uses.
+      document.getElementById('an-extracted-media-url').value = data.mediaUrl;
+      document.getElementById('an-extracted-media-type').value = data.mediaType;
+      const mediaCurrent = document.getElementById('an-media-current');
+      const mediaLabel = document.getElementById('an-media-current-label');
+      if (mediaLabel) mediaLabel.textContent = `${data.mediaType === 'video' ? '🎬 Video' : '🎵 Audio'} link detected — will play in the article modal`;
+      if (mediaCurrent) mediaCurrent.style.display = 'block';
+      if (data.excerpt && !document.getElementById('an-content').value.trim()) {
+        document.getElementById('an-content').value = `<p>${data.excerpt}</p>`;
+      }
+    } else if (data.isVideo) {
+      const safeTitle = (data.title || 'Video').replace(/"/g, '&quot;');
+      const youtubeMatch = (data.videoUrl || url).match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/i);
+      const vimeoMatch = (data.videoUrl || url).match(/vimeo\.com\/(\d+)/i);
+      let embed = '';
+      if (youtubeMatch) {
+        embed = `<div style="position:relative;padding-top:56.25%;height:0;overflow:hidden;border-radius:8px;margin-bottom:16px;"><iframe src="https://www.youtube.com/embed/${youtubeMatch[1]}" title="${safeTitle}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+      } else if (vimeoMatch) {
+        embed = `<div style="position:relative;padding-top:56.25%;height:0;overflow:hidden;border-radius:8px;margin-bottom:16px;"><iframe src="https://player.vimeo.com/video/${vimeoMatch[1]}" title="${safeTitle}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div>`;
+      } else if (data.isEmbedPlayer) {
+        embed = `<div style="position:relative;padding-top:56.25%;height:0;overflow:hidden;border-radius:8px;margin-bottom:16px;"><iframe src="${data.videoUrl || url}" title="${safeTitle}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+      }
+      document.getElementById('an-content').value = embed + (data.excerpt ? `<p>${data.excerpt}</p>` : '');
+    } else {
+      let hostname = '';
+      try { hostname = new URL(url).hostname.replace(/^www\./, ''); } catch {}
+      document.getElementById('an-content').value =
+        `<p>${data.excerpt || ''}</p><p>📰 <strong>Source:</strong> <a href="${url}" target="_blank" rel="noopener noreferrer">${hostname}</a></p><p><a class="btn-primary" href="${url}" target="_blank" rel="noopener noreferrer">Read Full Story →</a></p>`;
+    }
+
+    const preview = document.getElementById('an-link-preview');
+    const previewImg = document.getElementById('an-link-preview-img');
+    document.getElementById('an-extracted-image').value = data.image || '';
+    if (data.image) {
+      previewImg.src = data.image;
+      preview.style.display = 'block';
+    } else {
+      preview.style.display = 'none';
+    }
+
+    if (status) {
+      status.textContent = data.isDirectMedia
+        ? `✅ ${data.mediaType === 'video' ? 'Video' : 'Audio'} attached — now type a Title and Content for the article below.`
+        : '✅ Extracted — review the fields below before saving.';
+    }
+  } catch (err) {
+    if (status) status.textContent = '❌ Extraction failed: ' + err.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Extract';
+  }
+};
 
 async function adminLoadNewsList() {
   try {
@@ -522,6 +615,12 @@ async function adminLoadNewsList() {
 window.adminResetNews = function () {
   editingNewsId = null;
   document.getElementById('admin-news-form').reset();
+  document.getElementById('an-extracted-image').value = '';
+  document.getElementById('an-extracted-media-url').value = '';
+  document.getElementById('an-extracted-media-type').value = '';
+  document.getElementById('an-link-preview').style.display = 'none';
+  document.getElementById('an-link-status').textContent = '';
+  document.getElementById('an-media-current').style.display = 'none';
 };
 
 window.adminEditNews = async function (id) {
@@ -532,6 +631,21 @@ window.adminEditNews = async function (id) {
   document.getElementById('an-status').value = a.status;
   document.getElementById('an-excerpt').value = a.excerpt || '';
   document.getElementById('an-content').value = a.content;
+
+  // Clear any leftover "paste link" extraction from a previous, unrelated
+  // edit — the fields below reflect this article's actually saved media.
+  document.getElementById('an-media').value = '';
+  document.getElementById('an-media-remove').checked = false;
+  document.getElementById('an-extracted-media-url').value = '';
+  document.getElementById('an-extracted-media-type').value = '';
+  const mediaCurrent = document.getElementById('an-media-current');
+  if (a.mediaType === 'video' || a.mediaType === 'audio') {
+    document.getElementById('an-media-current-label').textContent = `${a.mediaType === 'video' ? '🎬 Video' : '🎵 Audio'} file attached`;
+    mediaCurrent.style.display = 'block';
+  } else {
+    mediaCurrent.style.display = 'none';
+  }
+
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -545,8 +659,30 @@ window.adminSaveNews = async function (e) {
   fd.append('status', document.getElementById('an-status').value);
   fd.append('excerpt', document.getElementById('an-excerpt').value);
   fd.append('content', document.getElementById('an-content').value);
+
   const imgFile = document.getElementById('an-image').files[0];
-  if (imgFile) fd.append('featuredImage', imgFile);
+  const extractedImage = document.getElementById('an-extracted-image').value;
+  if (imgFile) {
+    fd.append('featuredImage', imgFile);
+  } else if (extractedImage) {
+    fd.append('featuredImage', extractedImage);
+  }
+
+  const mediaFile = document.getElementById('an-media').files[0];
+  const removeMediaBox = document.getElementById('an-media-remove');
+  const extractedMediaUrl = document.getElementById('an-extracted-media-url').value;
+  const extractedMediaType = document.getElementById('an-extracted-media-type').value;
+  if (mediaFile) {
+    fd.append('newsMedia', mediaFile);
+  } else if (extractedMediaUrl && extractedMediaType) {
+    // A direct video/audio link was extracted (e.g. pasted from Cloudinary)
+    // rather than uploaded as a file — send it as plain fields.
+    fd.append('mediaUrl', extractedMediaUrl);
+    fd.append('mediaType', extractedMediaType);
+  } else if (removeMediaBox.checked) {
+    fd.append('removeMedia', 'true');
+  }
+
   try {
     if (editingNewsId) await api.news.update(editingNewsId, fd);
     else await api.news.create(fd);
