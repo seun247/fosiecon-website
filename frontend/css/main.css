@@ -162,6 +162,19 @@ h1,h2,h3,h4 { line-height: 1.2; }
 /* ── Admin photo upload ───────────────────────────────────── */
 .admin-photo-section { background: var(--ivory); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
 .admin-photo-section h4 { font-family: var(--font-display); color: var(--navy); margin-bottom: 14px; }
+
+/* ── Admin panel: left sidebar + content, not a horizontal tab row ── */
+.admin-bar{background:var(--slate);padding:12px 5%;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.admin-bar h3{color:var(--white);font-size:14px;font-weight:700;font-family:var(--font-display);}
+.admin-bar span{color:rgba(255,255,255,.6);font-size:12px;}
+.admin-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;background:none;border:none;flex-shrink:0;}
+.admin-hamburger span{width:22px;height:2px;background:var(--white);border-radius:2px;display:block;}
+.admin-grid{display:grid;grid-template-columns:230px 1fr;min-height:70vh;}
+.admin-sidebar{background:var(--navy);padding:20px 0;position:sticky;top:0;max-height:100vh;overflow-y:auto;align-self:start;}
+.admin-sidebar a{display:flex;align-items:center;gap:10px;padding:12px 20px;color:rgba(255,255,255,.75);font-size:13px;font-weight:500;transition:.2s;cursor:pointer;}
+.admin-sidebar a:hover,.admin-sidebar a.active{background:rgba(255,255,255,.1);color:var(--white);border-left:3px solid var(--sky);padding-left:17px;}
+.admin-sidebar-close{display:none;}
+.admin-content{padding:32px;background:var(--ivory);min-width:0;}
 .current-photo { margin-bottom: 12px; }
 
 /* ── Form elements ────────────────────────────────────────── */
@@ -378,6 +391,12 @@ footer{background:var(--navy);color:rgba(255,255,255,.8);padding:56px 5% 24px;}
   .gallery-group-body { grid-template-columns: repeat(2, 1fr); }
   .stats-grid{grid-template-columns:1fr 1fr;}
   .event-card{grid-template-columns:70px 1fr;}
+  .admin-hamburger{display:flex;}
+  .admin-grid{grid-template-columns:1fr;}
+  .admin-sidebar{display:none;position:fixed;inset:0;z-index:2000;padding:16px 0 24px;}
+  .admin-sidebar.open{display:flex;flex-direction:column;overflow-y:auto;}
+  .admin-sidebar a{padding:14px 24px;font-size:14px;}
+  .admin-sidebar-close{display:flex;align-items:center;gap:10px;padding:12px 20px;margin-bottom:8px;color:var(--white);font-size:14px;font-weight:700;cursor:pointer;border-bottom:1px solid rgba(255,255,255,.15);}
 }
 @media (max-width: 580px) {
   .section { padding: 48px 5%; }

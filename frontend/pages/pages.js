@@ -420,8 +420,11 @@ window.load_admin = async function () {
 
 window.switchAdminTab = function (tab) {
   currentAdminTab = tab;
-  document.querySelectorAll('.admin-tab-btn').forEach((b) => b.classList.toggle('btn-primary', b.dataset.tab === tab));
-  document.querySelectorAll('.admin-tab-btn').forEach((b) => b.classList.toggle('btn-outline', b.dataset.tab !== tab));
+  document.querySelectorAll('.admin-tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // On mobile the sidebar is a full-screen overlay — picking a tab closes it
+  document.getElementById('admin-sidebar')?.classList.remove('open');
+
   const renderers = {
     dashboard: adminRenderDashboard, news: adminRenderNews, team: adminRenderTeam,
     members: adminRenderMembers, gallery: adminRenderGallery, events: adminRenderEvents,
@@ -429,6 +432,10 @@ window.switchAdminTab = function (tab) {
     inquiries: adminRenderInquiries, users: adminRenderUsers,
   };
   (renderers[tab] || adminRenderDashboard)();
+};
+
+window.toggleAdminSidebar = function () {
+  document.getElementById('admin-sidebar')?.classList.toggle('open');
 };
 
 function adminContent() { return document.getElementById('admin-content'); }

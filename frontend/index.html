@@ -385,31 +385,27 @@
 
 <!-- ═══════════════ ADMIN PANEL ═══════════════ -->
 <section class="page-section" id="page-admin">
-  <div style="min-height:100vh;background:var(--ivory);">
-    <div style="background:var(--navy);color:var(--white);padding:16px 5%;display:flex;align-items:center;justify-content:space-between;">
-      <div style="font-family:var(--font-display);font-weight:700;">FOSIECON Admin Panel</div>
-      <div style="display:flex;align-items:center;gap:16px;font-size:13px;">
-        <span id="admin-user-label"></span>
-        <button class="btn-outline" style="border-color:rgba(255,255,255,.4);color:var(--white);padding:7px 16px;" onclick="Router.navigate('home')">View Site</button>
-        <button class="btn-danger" onclick="Auth.logout()">Logout</button>
-      </div>
+  <div class="admin-bar">
+    <button class="admin-hamburger" id="admin-hamburger" onclick="toggleAdminSidebar()"><span></span><span></span><span></span></button>
+    <h3>⚙️ FOSIECON Admin Panel</h3>
+    <span>Logged in as: <strong style="color:var(--white)" id="admin-user-label"></strong> &nbsp;|&nbsp; <a href="#" onclick="Router.navigate('home')" style="color:var(--white)">View Site</a> &nbsp;|&nbsp; <a href="#" onclick="Auth.logout()" style="color:var(--red)">Logout</a></span>
+  </div>
+  <div class="admin-grid">
+    <div class="admin-sidebar" id="admin-sidebar">
+      <a class="admin-sidebar-close" onclick="toggleAdminSidebar()">✕ Close Menu</a>
+      <a class="admin-tab-btn" data-tab="dashboard" onclick="switchAdminTab('dashboard')">📊 Dashboard</a>
+      <a class="admin-tab-btn" data-tab="news" onclick="switchAdminTab('news')">📰 News</a>
+      <a class="admin-tab-btn" data-tab="team" onclick="switchAdminTab('team')">👥 Team</a>
+      <a class="admin-tab-btn" data-tab="members" onclick="switchAdminTab('members')">🏛️ Member Commissions</a>
+      <a class="admin-tab-btn" data-tab="gallery" onclick="switchAdminTab('gallery')">🖼️ Gallery</a>
+      <a class="admin-tab-btn" data-tab="events" onclick="switchAdminTab('events')">📅 Events</a>
+      <a class="admin-tab-btn" data-tab="downloads" onclick="switchAdminTab('downloads')">📄 Downloads</a>
+      <a class="admin-tab-btn" data-tab="testimonials" onclick="switchAdminTab('testimonials')">💬 Testimonials</a>
+      <a class="admin-tab-btn" data-tab="faqs" onclick="switchAdminTab('faqs')">❓ FAQs</a>
+      <a class="admin-tab-btn" data-tab="inquiries" onclick="switchAdminTab('inquiries')">✉️ Inquiries</a>
+      <a class="admin-tab-btn" data-tab="users" onclick="switchAdminTab('users')">🔐 Users &amp; Logs</a>
     </div>
-
-    <div style="display:flex;flex-wrap:wrap;gap:8px;padding:16px 5%;background:var(--white);border-bottom:1px solid var(--border);" id="admin-tabs">
-      <button class="btn-outline admin-tab-btn" data-tab="dashboard" onclick="switchAdminTab('dashboard')">Dashboard</button>
-      <button class="btn-outline admin-tab-btn" data-tab="news" onclick="switchAdminTab('news')">News</button>
-      <button class="btn-outline admin-tab-btn" data-tab="team" onclick="switchAdminTab('team')">Team</button>
-      <button class="btn-outline admin-tab-btn" data-tab="members" onclick="switchAdminTab('members')">Member Commissions</button>
-      <button class="btn-outline admin-tab-btn" data-tab="gallery" onclick="switchAdminTab('gallery')">Gallery</button>
-      <button class="btn-outline admin-tab-btn" data-tab="events" onclick="switchAdminTab('events')">Events</button>
-      <button class="btn-outline admin-tab-btn" data-tab="downloads" onclick="switchAdminTab('downloads')">Downloads</button>
-      <button class="btn-outline admin-tab-btn" data-tab="testimonials" onclick="switchAdminTab('testimonials')">Testimonials</button>
-      <button class="btn-outline admin-tab-btn" data-tab="faqs" onclick="switchAdminTab('faqs')">FAQs</button>
-      <button class="btn-outline admin-tab-btn" data-tab="inquiries" onclick="switchAdminTab('inquiries')">Inquiries</button>
-      <button class="btn-outline admin-tab-btn" data-tab="users" onclick="switchAdminTab('users')">Users &amp; Logs</button>
-    </div>
-
-    <div style="padding:32px 5%;" id="admin-content"></div>
+    <div class="admin-content" id="admin-content"></div>
   </div>
 </section>
 
