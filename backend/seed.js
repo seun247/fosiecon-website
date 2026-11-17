@@ -138,14 +138,17 @@ const seed = async () => {
     console.log(`✅ Seeded ${members.length} member-state commissions (Kogi/KOSIEC fully detailed; others as placeholders)`);
 
     // ── 3. Seed Super Admin ─────────────────────────────────
+    // Seeded with a throwaway password, not the real production one — this
+    // file is committed to a public repo, so the real credential (set
+    // separately, directly in the database) must never appear here.
     const superAdmin = await User.create({
       fullName: 'FOSIECON Super Admin',
-      email: 'admin@fosiecon.org',
-      password: 'Fosiecon@2026',
+      email: 'admin@fosieconng.org',
+      password: 'ChangeMeImmediately@2026',
       role: 'super_admin',
       staffId: 'FOSIECON-SA-001',
     });
-    console.log('✅ Super Admin created → admin@fosiecon.org / Fosiecon@2026');
+    console.log('✅ Super Admin created → admin@fosieconng.org / ChangeMeImmediately@2026 (CHANGE THIS NOW)');
 
     // ── 4. Seed Chairman admin account ─────────────────────
     await User.create({
@@ -204,8 +207,8 @@ const seed = async () => {
 
     console.log('\n🎉 Seed complete!\n');
     console.log('──────────────────────────────────────────────');
-    console.log('  Super Admin   : admin@fosiecon.org');
-    console.log('  Password      : Fosiecon@2026');
+    console.log('  Super Admin   : admin@fosieconng.org');
+    console.log('  Password      : ChangeMeImmediately@2026');
     console.log('  Chairman Login: erimamman2@gmail.com');
     console.log('  Password      : Fosiecon@Chairman2026');
     console.log('  ⚠️  Change passwords immediately after first login!');
