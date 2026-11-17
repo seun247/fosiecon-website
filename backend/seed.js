@@ -154,7 +154,7 @@ const seed = async () => {
     await User.create({
       fullName: 'Mamman Nda Eri',
       email: 'erimamman2@gmail.com',
-      password: 'Fosiecon@Chairman2026',
+      password: 'ChangeMeImmediately@Chair2026',
       role: 'admin',
       staffId: 'FOSIECON-CHAIR-001',
       phone: '09169490757',
@@ -210,7 +210,7 @@ const seed = async () => {
     console.log('  Super Admin   : admin@fosieconng.org');
     console.log('  Password      : ChangeMeImmediately@2026');
     console.log('  Chairman Login: erimamman2@gmail.com');
-    console.log('  Password      : Fosiecon@Chairman2026');
+    console.log('  Password      : ChangeMeImmediately@Chair2026');
     console.log('  ⚠️  Change passwords immediately after first login!');
     console.log('──────────────────────────────────────────────\n');
 
