@@ -365,7 +365,7 @@ window.load_dashboard = async function () {
   const content = document.getElementById('dashboard-content');
   if (!content) return;
   const user = Auth.getUser();
-  if (!user) { window.location.href = 'login.html'; return; }
+  if (!user) { window.location.href = 'login'; return; }
 
   content.innerHTML = `
     <div class="chairman-card" style="grid-template-columns:1fr;max-width:none;text-align:left;">

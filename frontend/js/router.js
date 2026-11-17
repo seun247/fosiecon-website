@@ -21,12 +21,12 @@ const Router = {
   navigate(pageId, updateUrl = true) {
     // Guard admin page
     if (pageId === 'admin' && !Auth.isAdmin()) {
-      window.location.href = 'login.html';
+      window.location.href = 'login';
       return;
     }
     // Guard member dashboard
     if (pageId === 'dashboard' && !Auth.isLoggedIn()) {
-      window.location.href = 'login.html';
+      window.location.href = 'login';
       return;
     }
 
