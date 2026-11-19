@@ -6,12 +6,47 @@ const TeamMember = require('./models/TeamMember');
 const AdminLog = require('./models/AdminLog');
 const { Setting, Faq } = require('./models/SharedModels');
 
+// Chairman names from FOSIECON's official "Names of Chairmen" list (phone
+// numbers deliberately excluded — personal numbers, not published here).
+// States with no chairman currently listed there (Akwa Ibom, Kebbi, Niger,
+// Ogun, Osun, Sokoto) are left blank for the admin to fill in later —
+// fabricating a name would be worse than leaving it empty.
+const CHAIRMEN = {
+  Abia: { chairmanName: 'Hon. Prof. George N. Chima' },
+  Adamawa: { chairmanName: 'Hon. Muhammed A. Umar' },
+  Anambra: { chairmanName: 'Hon. Genevieve C. Osakwe Esq' },
+  Bauchi: { chairmanName: 'Hon. Jummai S. Abubakar' },
+  Bayelsa: { chairmanName: 'Dr. Singabele Peter' },
+  Benue: { chairmanName: 'Barr. Terlumun Tombowua' },
+  Borno: { chairmanName: 'Dr. Tahiru Shettima' },
+  'Cross River': { chairmanName: 'Dr. Ekong Boco' },
+  Delta: { chairmanName: 'Sir. Dr. Jerry Raphael Agbaike' },
+  Ebonyi: { chairmanName: 'Hon. Patrick Enyi' },
+  Edo: { chairmanName: 'Hon. Jonathan Aifuobhokhan' },
+  Ekiti: { chairmanName: 'Hon. Justice Cornelius Ilori Akintayo (rtd)' },
+  Enugu: { chairmanName: 'Prof. Christian Ngwu' },
+  Gombe: { chairmanName: 'Hon. Abdu Garba Talasse' },
+  Imo: { chairmanName: 'Hon. Ejiogu Charles' },
+  Jigawa: { chairmanName: 'Hon. Auwalu Muhammed Harbo' },
+  Kaduna: { chairmanName: 'Hon. Hajara Mohammed' },
+  Kano: { chairmanName: 'Pro. Malufashi' },
+  Katsina: { chairmanName: 'Hon. Alhassan Faskari' },
+  Kwara: { chairmanName: 'Hon. Muhammed Baba Okanla' },
+  Lagos: { chairmanName: 'Hon. Justice Bola Okikiolu Ighile (rtd)' },
+  Nasarawa: { chairmanName: 'Barr. Ayuba Wandai Usman' },
+  Ondo: { chairmanName: 'Assoc. Prof. Joseph Aremo' },
+  Oyo: { chairmanName: 'Dr. Babatunde Afees Adeniyi' },
+  Plateau: { chairmanName: 'Hon. Plangji Cishak' },
+  Rivers: { chairmanName: 'Hon. Dr. Michael Odey' },
+  Taraba: { chairmanName: 'Hon. Job Bala Aji' },
+  Yobe: { chairmanName: 'Dr. I.M Yabani' },
+  Zamfara: { chairmanName: 'Hon. Bala Aliyu Gusau' },
+};
+
 // Kogi is seeded with its real, known commission details (KOSIEC, this
-// project's sibling site). Every other state is seeded as a placeholder
-// record — name and state only — for the admin to fill in via the CMS;
-// fabricating chairman names, abbreviations, or contact details for
-// commissions this project has no real data on would be worse than
-// leaving them blank.
+// project's sibling site). Every other state is seeded with its chairman
+// from CHAIRMEN above when known — fabricating details this project has no
+// real data on would be worse than leaving them blank.
 const MEMBER_COMMISSIONS = MemberCommission.NIGERIAN_STATES.map((state) =>
   state === 'Kogi'
     ? {
@@ -20,13 +55,13 @@ const MEMBER_COMMISSIONS = MemberCommission.NIGERIAN_STATES.map((state) =>
         abbreviation: 'KOSIEC',
         chairmanName: 'Mamman Nda Eri',
         contactEmail: 'erimamman2@gmail.com',
-        contactPhone: '09169490757',
         website: 'https://www.kosiec.org',
         isActive: true,
       }
     : {
         state,
         commissionName: `${state} State Independent Electoral Commission`,
+        ...(CHAIRMEN[state] || {}),
         isActive: true,
       }
 );
