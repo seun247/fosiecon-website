@@ -296,6 +296,7 @@ window.load_team = async function () {
           <div class="member-state">${esc(m.state)}</div>
           ${m.abbreviation ? `<div class="member-abbr">${esc(m.abbreviation)}</div>` : ''}
           <div class="member-name">${esc(m.commissionName)}</div>
+          ${m.chairmanName ? `<div class="member-chairman">Chairman: ${esc(m.chairmanName)}</div>` : ''}
         </div>`).join('') : '<p class="empty-state">No member commissions listed yet.</p>';
     }
   } catch (err) {
