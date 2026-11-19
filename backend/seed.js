@@ -52,7 +52,6 @@ const MEMBER_COMMISSIONS = MemberCommission.NIGERIAN_STATES.map((state) =>
     ? {
         state,
         commissionName: 'Kogi State Independent Electoral Commission',
-        abbreviation: 'KOSIEC',
         chairmanName: 'Mamman Nda Eri',
         contactEmail: 'erimamman2@gmail.com',
         website: 'https://www.kosiec.org',
