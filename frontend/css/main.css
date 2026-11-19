@@ -132,8 +132,8 @@ h1,h2,h3,h4 { line-height: 1.2; }
 .member-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; transition: .2s; }
 .member-card:hover { box-shadow: var(--shadow); border-color: var(--navy); }
 .member-card .member-state { font-family: var(--font-display); font-weight: 700; color: var(--navy); font-size: 15px; }
-.member-card .member-abbr { font-size: 11px; font-weight: 700; color: var(--sky); letter-spacing: .5px; margin-top: 2px; }
 .member-card .member-name { font-size: 12px; color: var(--slate-light); margin-top: 6px; line-height: 1.5; }
+.member-card .member-name strong { color: var(--sky); font-weight: 700; letter-spacing: .5px; }
 .member-card .member-chairman { font-size: 12px; color: var(--slate); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); font-weight: 600; }
 
 /* ── Article modal ────────────────────────────────────────── */

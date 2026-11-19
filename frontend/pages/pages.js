@@ -294,8 +294,7 @@ window.load_team = async function () {
       membersEl.innerHTML = data.length ? data.map((m) => `
         <div class="member-card">
           <div class="member-state">${esc(m.state)}</div>
-          ${m.abbreviation ? `<div class="member-abbr">${esc(m.abbreviation)}</div>` : ''}
-          <div class="member-name">${esc(m.commissionName)}</div>
+          <div class="member-name">${m.abbreviation ? `<strong>${esc(m.abbreviation)}</strong> — ` : ''}${esc(m.commissionName)}</div>
           ${m.chairmanName ? `<div class="member-chairman">Chairman: ${esc(m.chairmanName)}</div>` : ''}
         </div>`).join('') : '<p class="empty-state">No member commissions listed yet.</p>';
     }
