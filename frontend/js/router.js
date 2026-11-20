@@ -48,12 +48,10 @@ const Router = {
     this.currentPage = pageId;
 
     // The admin portal is a standalone screen — hide the public site's
-    // navbar/ticker so it isn't a mix of "public site + admin panel".
+    // navbar so it isn't a mix of "public site + admin panel".
     const isAdminPage = pageId === 'admin';
     const navbar = document.getElementById('navbar');
-    const ticker = document.querySelector('.news-ticker');
     if (navbar) navbar.style.display = isAdminPage ? 'none' : '';
-    if (ticker) ticker.style.display = isAdminPage ? 'none' : '';
     document.body.classList.toggle('admin-mode', isAdminPage);
 
     if (updateUrl) {

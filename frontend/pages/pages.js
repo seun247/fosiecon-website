@@ -5,16 +5,6 @@ function setText(id, value) { const el = document.getElementById(id); if (el) el
 function esc(s) { return (s || '').toString().replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; }
 
-async function loadTicker() {
-  try {
-    const { data: settings } = await api.settings.getPublic();
-    if (settings.ticker_messages) {
-      const inner = document.getElementById('ticker-inner');
-      if (inner) inner.innerHTML = settings.ticker_messages.map((m) => `<span>${esc(m)}</span>`).join('');
-    }
-  } catch (err) { console.warn('[ticker] load failed:', err.message); }
-}
-
 // ============================================================
 // HOME
 // ============================================================

@@ -267,7 +267,7 @@ const SettingSchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
-      // Examples: 'ticker_messages', 'chairman_message', 'site_maintenance', 'contact_info'
+      // Examples: 'chairman_message', 'site_maintenance', 'contact_info'
     },
     value: {
       type: mongoose.Schema.Types.Mixed, // Can be string, array, object

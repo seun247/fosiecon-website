@@ -107,14 +107,6 @@
   <a onclick="Router.navigate('contact');closeMenu()">📞 Contact</a>
 </div>
 
-<!-- NEWS TICKER -->
-<div class="news-ticker">
-  <div class="ticker-label">FOSIECON</div>
-  <div class="ticker-wrap"><div class="ticker-inner" id="ticker-inner">
-    <span>📢 Loading latest updates from FOSIECON…</span>
-  </div></div>
-</div>
-
 <!-- ═══════════════ HOME ═══════════════ -->
 <section class="page-section active" id="page-home">
   <div class="hero">
@@ -315,7 +307,7 @@
   <div class="section">
     <div class="section-inner">
       <div class="section-header"><div class="header-box"><div class="eyebrow">Get In Touch</div><h2>Contact FOSIECON</h2></div></div>
-      <div style="display:grid;grid-template-columns:1fr 1.3fr;gap:48px;max-width:1000px;margin:0 auto;">
+      <div class="contact-layout">
         <div>
           <div class="form-group"><label>Address</label><p style="font-size:14px;color:var(--slate-light);">No. 1 Ado Ibrahim Road, GRA, Lokoja, Kogi State, Nigeria</p></div>
           <div class="form-group"><label>Email</label><p style="font-size:14px;color:var(--slate-light);">info@fosieconng.org</p></div>
@@ -452,7 +444,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     Router.init();
     renderNavForRole();
-    loadTicker();
   });
 </script>
 </body>

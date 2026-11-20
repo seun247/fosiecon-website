@@ -67,17 +67,6 @@ const MEMBER_COMMISSIONS = MemberCommission.NIGERIAN_STATES.map((state) =>
 
 const INITIAL_SETTINGS = [
   {
-    key: 'ticker_messages',
-    value: [
-      '📢 FOSIECON — Forum of State Independent Electoral Commissions of Nigeria',
-      '🗳️ Bringing together all 36 State Independent Electoral Commissions under one umbrella',
-      '📋 In line with the Constitution and the Electoral Act 2026',
-      '📞 For inquiries: WhatsApp +234 916 949 0757',
-    ],
-    description: 'Scrolling ticker messages shown at the top of the website',
-    isPublic: true,
-  },
-  {
     key: 'contact_info',
     value: {
       phone1: '2349169490757',
