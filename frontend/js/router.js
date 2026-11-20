@@ -45,6 +45,15 @@ const Router = {
     if (!section) return;
 
     section.classList.add('active');
+    // Fade/rise the new page in — two rAFs so the browser commits the
+    // "entering" state (opacity 0) before the "active" state is added,
+    // otherwise both classes would apply in the same frame and never
+    // actually transition.
+    section.classList.add('page-enter');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => section.classList.add('page-enter-active'));
+    });
+    setTimeout(() => section.classList.remove('page-enter', 'page-enter-active'), 350);
     this.currentPage = pageId;
 
     // The admin portal is a standalone screen — hide the public site's

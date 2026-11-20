@@ -22,7 +22,10 @@ window.load_home = async function () {
   try {
     const { data: articles } = await api.news.getPublished('?limit=3');
     const grid = document.getElementById('home-news-grid');
-    if (grid) grid.innerHTML = articles.length ? articles.map(newsCard).join('') : '<p class="empty-state">No news published yet.</p>';
+    if (grid) {
+      grid.innerHTML = articles.length ? articles.map(newsCard).join('') : '<p class="empty-state">No news published yet.</p>';
+      window.staggerNewsCards && window.staggerNewsCards(grid);
+    }
   } catch (err) {
     const grid = document.getElementById('home-news-grid');
     if (grid) grid.innerHTML = `<p class="error-state">Could not load news.</p>`;
@@ -43,6 +46,11 @@ window.load_about = async function () {
       el.outerHTML = `<img src="${chairman.photo}" alt="${esc(chairman.fullName)}" class="chairman-photo" id="about-chairman-photo">`;
     }
   } catch (err) { /* keep the static default photo */ }
+
+  try {
+    const { data: settings } = await api.settings.getPublic();
+    if (settings.commission_stats) setText('about-stat-states', settings.commission_stats.memberStates);
+  } catch (err) { /* keep the static default count */ }
 };
 
 // ============================================================
@@ -75,6 +83,7 @@ window.load_news = async function () {
   try {
     const { data } = await api.news.getPublished();
     grid.innerHTML = data.length ? data.map(newsCard).join('') : '<p class="empty-state">No articles published yet.</p>';
+    window.staggerNewsCards && window.staggerNewsCards(grid);
   } catch (err) {
     grid.innerHTML = `<p class="error-state">Could not load news. ${esc(err.message)}</p>`;
   }

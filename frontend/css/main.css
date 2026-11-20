@@ -312,6 +312,8 @@ h1,h2,h3,h4 { line-height: 1.2; }
 .page-section{display:none;}
 .page-section.active{display:block;margin-top:70px;}
 body.admin-mode .page-section.active{margin-top:0;}
+.page-section.page-enter{opacity:0;transform:translateY(10px);}
+.page-section.page-enter-active{opacity:1;transform:translateY(0);transition:opacity .3s ease,transform .3s ease;}
 
 /* HERO */
 .hero{min-height:80vh;background:linear-gradient(135deg,var(--navy) 0%,#081D3F 60%,var(--navy-mid) 100%);display:flex;align-items:center;padding:60px 5% 80px;position:relative;overflow:hidden;}
@@ -435,7 +437,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.8);padding:56px 5% 24px;}
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-badge, .hero h1, .hero-sub, .hero-btns, .hero-visual, .reveal {
+  .hero-badge, .hero h1, .hero-sub, .hero-btns, .hero-visual, .reveal, .page-enter, .page-enter-active {
     animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important;
   }
 }

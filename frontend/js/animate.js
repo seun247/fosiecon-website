@@ -5,8 +5,12 @@
 // the whole document. No other script needs to call into this one.
 
 (function () {
+  // .news-card is deliberately excluded here — it gets its own dedicated,
+  // guaranteed-on-load stagger (see staggerNewsCards below) instead of a
+  // scroll-triggered one, since the home news grid usually sits above the
+  // fold where an IntersectionObserver reveal is unreliable/inconsistent.
   const REVEAL_SELECTOR = [
-    '.section-header', '.service-card', '.news-card', '.member-card',
+    '.section-header', '.service-card', '.member-card',
     '.team-card', '.event-card', '.gallery-item', '.testimonial-card',
     '.faq-item', '.chairman-card', '.chairman-full-card',
   ].join(',');
@@ -72,6 +76,21 @@
     bindReveal(root);
     bindStatCounters(root);
   }
+
+  // Called right after a news grid's innerHTML is set (home page and the
+  // full News listing), so every card fades/rises in immediately and in
+  // sequence — not dependent on scroll position, since this grid is often
+  // already in view when the page loads.
+  window.staggerNewsCards = function (container) {
+    if (prefersReducedMotion || !container) return;
+    const cards = container.querySelectorAll('.news-card');
+    cards.forEach((card, i) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(16px)';
+      card.style.animation = `rise-in .5s cubic-bezier(.2,.7,.3,1) forwards`;
+      card.style.animationDelay = `${i * 0.1}s`;
+    });
+  };
 
   scan(document);
 
