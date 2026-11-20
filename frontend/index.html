@@ -66,9 +66,15 @@
 <div class="gallery-modal" id="gallery-modal" onclick="if(event.target===this) closeGalleryModal()">
   <div class="gallery-modal-box">
     <button class="gallery-modal-close" onclick="closeGalleryModal()">✕</button>
+    <button class="gallery-modal-nav gallery-modal-prev" id="gallery-modal-prev" onclick="galleryModalNav(-1)">‹</button>
+    <button class="gallery-modal-nav gallery-modal-next" id="gallery-modal-next" onclick="galleryModalNav(1)">›</button>
     <div id="gallery-modal-media"></div>
     <div class="gallery-modal-title" id="gallery-modal-title"></div>
     <div class="gallery-modal-caption" id="gallery-modal-caption"></div>
+    <div class="gallery-modal-footer">
+      <span class="gallery-modal-counter" id="gallery-modal-counter"></span>
+      <button class="gallery-modal-playpause" id="gallery-modal-playpause" onclick="toggleGallerySlideshow()">⏸ Pause</button>
+    </div>
   </div>
 </div>
 

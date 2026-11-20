@@ -110,6 +110,9 @@ window.closeArticleModal = function () {
 // ============================================================
 // GALLERY
 // ============================================================
+let galleryTimer = null;
+let galleryAutoplay = true;
+
 window.load_gallery = async function () {
   const container = document.getElementById('gallery-container');
   if (!container) return;
@@ -123,6 +126,7 @@ window.load_gallery = async function () {
       const cat = (item.category || 'other').replace(/_/g, ' ');
       (groups[cat] = groups[cat] || []).push(item);
     });
+    window.__galleryGroups = groups;
 
     container.innerHTML = Object.entries(groups).map(([cat, items], i) => `
       <div class="gallery-group ${i === 0 ? 'open' : ''}">
@@ -131,8 +135,8 @@ window.load_gallery = async function () {
           <span class="gallery-toggle">▾</span>
         </div>
         <div class="gallery-group-body">
-          ${items.map((item) => `
-            <div class="gallery-item${item.mediaType === 'video' ? ' video-item' : ''}" onclick='openGalleryItem(${JSON.stringify(item).replace(/'/g, "&#39;")})'>
+          ${items.map((item, idx) => `
+            <div class="gallery-item${item.mediaType === 'video' ? ' video-item' : ''}" onclick="openGalleryItem('${cat}', ${idx})">
               ${item.thumbnailPath || item.filePath
                 ? `<img src="${item.thumbnailPath || item.filePath}" alt="${esc(item.title)}">`
                 : `<div class="gallery-placeholder">🖼️<span>${esc(item.title)}</span></div>`}
@@ -145,7 +149,24 @@ window.load_gallery = async function () {
   }
 };
 
-window.openGalleryItem = function (item) {
+// Opens the lightbox on a specific image within its group, as a navigable
+// slideshow over the whole group — not just that one image in isolation.
+window.openGalleryItem = function (cat, idx) {
+  window.__galleryCat = cat;
+  window.__galleryIdx = idx;
+  renderGalleryModalItem();
+  document.getElementById('gallery-modal').classList.add('open');
+  galleryAutoplay = true;
+  const playBtn = document.getElementById('gallery-modal-playpause');
+  if (playBtn) playBtn.textContent = '⏸ Pause';
+  startGallerySlideshow();
+};
+
+function renderGalleryModalItem() {
+  const items = (window.__galleryGroups || {})[window.__galleryCat] || [];
+  const item = items[window.__galleryIdx];
+  if (!item) return;
+
   const mediaEl = document.getElementById('gallery-modal-media');
   if (item.mediaType === 'video' && item.videoUrl) {
     mediaEl.innerHTML = `<div style="position:relative;padding-top:56.25%;"><iframe src="${item.videoUrl}" style="position:absolute;inset:0;width:100%;height:100%;border:0;" allowfullscreen></iframe></div>`;
@@ -154,13 +175,54 @@ window.openGalleryItem = function (item) {
   }
   document.getElementById('gallery-modal-title').textContent = item.title;
   document.getElementById('gallery-modal-caption').textContent = item.description || '';
-  document.getElementById('gallery-modal').classList.add('open');
+
+  const multi = items.length > 1;
+  const counter = document.getElementById('gallery-modal-counter');
+  if (counter) counter.textContent = multi ? `${window.__galleryIdx + 1} / ${items.length}` : '';
+  document.getElementById('gallery-modal-prev').style.display = multi ? 'flex' : 'none';
+  document.getElementById('gallery-modal-next').style.display = multi ? 'flex' : 'none';
+  document.getElementById('gallery-modal-playpause').style.display = multi ? 'inline-block' : 'none';
+}
+
+window.galleryModalNav = function (dir) {
+  const items = (window.__galleryGroups || {})[window.__galleryCat] || [];
+  if (!items.length) return;
+  window.__galleryIdx = (window.__galleryIdx + dir + items.length) % items.length;
+  renderGalleryModalItem();
+  if (galleryAutoplay) startGallerySlideshow();
+};
+
+// Auto-advances every 4s while more than one image is in the group — paused
+// automatically while a video is showing, so it never interrupts playback.
+function startGallerySlideshow() {
+  clearInterval(galleryTimer);
+  const items = (window.__galleryGroups || {})[window.__galleryCat] || [];
+  const current = items[window.__galleryIdx];
+  if (!galleryAutoplay || items.length <= 1 || (current && current.mediaType === 'video')) return;
+  galleryTimer = setInterval(() => galleryModalNav(1), 4000);
+}
+
+window.toggleGallerySlideshow = function () {
+  galleryAutoplay = !galleryAutoplay;
+  const btn = document.getElementById('gallery-modal-playpause');
+  if (btn) btn.textContent = galleryAutoplay ? '⏸ Pause' : '▶ Play';
+  if (galleryAutoplay) startGallerySlideshow();
+  else clearInterval(galleryTimer);
 };
 
 window.closeGalleryModal = function () {
   document.getElementById('gallery-modal').classList.remove('open');
   document.getElementById('gallery-modal-media').innerHTML = '';
+  clearInterval(galleryTimer);
 };
+
+document.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('gallery-modal');
+  if (!modal || !modal.classList.contains('open')) return;
+  if (e.key === 'ArrowLeft') galleryModalNav(-1);
+  else if (e.key === 'ArrowRight') galleryModalNav(1);
+  else if (e.key === 'Escape') closeGalleryModal();
+});
 
 // ============================================================
 // TESTIMONIALS
