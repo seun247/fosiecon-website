@@ -139,11 +139,30 @@ downloadsRouter.post('/extract-link', protect, authorize('super_admin', 'admin',
   }
 });
 
+// Cloudinary's own account limit (10MB for this plan) rejects a direct file
+// upload with a message like "File size too large. Got X. Maximum is Y." —
+// surfaced here as a clear, actionable error instead of a raw 500, since the
+// fix (use a link instead) is something the admin can actually act on.
+function uploadSingleDocument(req, res, next) {
+  upload.single('document')(req, res, (err) => {
+    if (err) {
+      if (/file size too large/i.test(err.message)) {
+        return res.status(400).json({
+          success: false,
+          message: 'That file is too large to upload directly (10MB limit). Use "Auto-fill from a Link" instead — paste a direct link to the file hosted elsewhere, and leave the File field empty.',
+        });
+      }
+      return next(err);
+    }
+    next();
+  });
+}
+
 downloadsRouter.post(
   '/',
   protect,
   authorize('super_admin', 'admin', 'staff'),
-  upload.single('document'),
+  uploadSingleDocument,
   async (req, res, next) => {
     try {
       let filePath, filePublicId, fileSize, fileType;

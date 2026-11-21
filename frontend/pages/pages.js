@@ -1207,6 +1207,11 @@ window.adminExtractDownloadLink = async function () {
     if (data.title) document.getElementById('ad-title').value = data.title;
     document.getElementById('ad-extracted-path').value = data.filePath;
     document.getElementById('ad-extracted-size').value = data.fileSize || '';
+    // A successful link extraction fully replaces the need for a file —
+    // clear any previously selected one so it can't silently win and get
+    // uploaded through Cloudinary instead (which has its own size cap the
+    // external link isn't subject to).
+    document.getElementById('ad-file').value = '';
     if (status) {
       status.textContent = data.isDirectFile
         ? `✅ File detected${data.fileSize ? ' (' + data.fileSize + ')' : ''} — review the title and category, then save.`
