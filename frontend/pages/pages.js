@@ -941,15 +941,16 @@ window.adminDeleteMember = async function (id) {
 // ── Gallery tab ──────────────────────────────────────────────
 async function adminRenderGallery() {
   const el = adminContent();
-  el.innerHTML = adminFormShell('Add Gallery Item', `
+  el.innerHTML = adminFormShell('Add Gallery Photos', `
     <form id="admin-gallery-form" onsubmit="adminSaveGallery(event)">
+      <p style="font-size:12px;color:var(--slate-light);margin-bottom:16px;">Photos uploaded with the same title appear together as one group — select multiple files at once to add a whole set under one title in a single go.</p>
       <div class="form-row">
-        <div class="form-group"><label>Title</label><input type="text" id="ag-title" required></div>
+        <div class="form-group"><label>Group Title</label><input type="text" id="ag-title" required placeholder="e.g. Commissioning of New Office, Lokoja"></div>
         <div class="form-group"><label>Category</label>
           <select id="ag-category"><option value="general_assembly">General Assembly</option><option value="election_observation">Election Observation</option><option value="training">Training</option><option value="advocacy">Advocacy</option><option value="meeting">Meeting</option><option value="office">Office</option><option value="other">Other</option></select>
         </div>
       </div>
-      <div class="form-group"><label>Image</label><input type="file" id="ag-image" accept="image/*" required></div>
+      <div class="form-group"><label>Photos (select multiple)</label><input type="file" id="ag-image" accept="image/*" multiple required></div>
       <button class="btn-primary" type="submit">Add to Gallery</button>
       <div class="form-error" id="ag-error"></div>
     </form>`);
@@ -969,19 +970,48 @@ async function adminLoadGalleryList() {
   } catch (err) { document.getElementById('admin-gallery-list').innerHTML = `<p class="error-state">${esc(err.message)}</p>`; }
 }
 
+// Uploads every selected photo one at a time, all tagged with the same
+// title/category, so they appear together as one group in the gallery —
+// there's no bulk-upload endpoint, so this is a sequential loop over the
+// same single-image create() call.
 window.adminSaveGallery = async function (e) {
   e.preventDefault();
   const errorEl = document.getElementById('ag-error');
   errorEl.style.display = 'none';
-  const fd = new FormData();
-  fd.append('title', document.getElementById('ag-title').value);
-  fd.append('category', document.getElementById('ag-category').value);
-  fd.append('galleryImage', document.getElementById('ag-image').files[0]);
+
+  const title = document.getElementById('ag-title').value;
+  const category = document.getElementById('ag-category').value;
+  const files = [...document.getElementById('ag-image').files];
+  if (!files.length) {
+    errorEl.textContent = 'Select at least one photo.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  const submitBtn = e.target.querySelector('button[type="submit"]');
+  submitBtn.disabled = true;
+  let uploaded = 0;
   try {
-    await api.gallery.create(fd);
+    for (const file of files) {
+      submitBtn.textContent = `Uploading ${uploaded + 1} of ${files.length}…`;
+      const fd = new FormData();
+      fd.append('title', title);
+      fd.append('category', category);
+      fd.append('galleryImage', file);
+      await api.gallery.create(fd);
+      uploaded++;
+    }
     document.getElementById('admin-gallery-form').reset();
     adminLoadGalleryList();
-  } catch (err) { errorEl.textContent = err.message; errorEl.style.display = 'block'; }
+  } catch (err) {
+    errorEl.textContent = uploaded
+      ? `Uploaded ${uploaded} of ${files.length} before this failed: ${err.message}`
+      : err.message;
+    errorEl.style.display = 'block';
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Add to Gallery';
+  }
 };
 
 window.adminDeleteGallery = async function (id) {
