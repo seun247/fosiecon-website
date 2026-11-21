@@ -1068,7 +1068,7 @@ async function adminRenderDownloads() {
       <div class="form-group"><label>Category</label>
         <select id="ad-category"><option value="communique">Communiqué</option><option value="constitution">Constitution</option><option value="guideline">Guideline</option><option value="report">Report</option><option value="policy">Policy</option><option value="notice">Notice</option><option value="other">Other</option></select>
       </div>
-      <div class="form-group"><label>File (PDF, DOCX, XLSX) — leave blank if you used the link above</label><input type="file" id="ad-file" accept=".pdf,.docx,.xlsx"></div>
+      <div class="form-group"><label>File (PDF, DOCX, XLSX, or Image) — leave blank if you used the link above</label><input type="file" id="ad-file" accept=".pdf,.docx,.xlsx,image/*"></div>
       <button class="btn-primary" type="submit">Upload Document</button>
       <div class="form-error" id="ad-error"></div>
     </form>`);

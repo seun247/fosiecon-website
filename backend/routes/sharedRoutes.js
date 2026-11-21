@@ -146,17 +146,19 @@ downloadsRouter.post(
   upload.single('document'),
   async (req, res, next) => {
     try {
-      let filePath, filePublicId, fileSize;
+      let filePath, filePublicId, fileSize, fileType;
       if (req.file) {
         filePath = req.file.path;         // Cloudinary secure URL
         filePublicId = req.file.filename; // Cloudinary public_id
         const sizeKB = req.file.size / 1024;
         fileSize = sizeKB > 1024 ? `${(sizeKB / 1024).toFixed(1)} MB` : `${Math.round(sizeKB)} KB`;
+        fileType = upload.docKind(req.file.originalname);
       } else if (req.body.filePath) {
         // An externally-hosted link (from extract-link, or pasted directly)
         // rather than an uploaded file.
         filePath = req.body.filePath;
         fileSize = req.body.fileSize || undefined;
+        fileType = upload.docKind(req.body.filePath);
       } else {
         return res.status(400).json({ success: false, message: 'A document file or an external link is required.' });
       }
@@ -166,6 +168,7 @@ downloadsRouter.post(
         filePath,
         filePublicId,
         fileSize,
+        fileType,
         createdBy: req.user._id,
       });
       res.status(201).json({ success: true, data: doc });

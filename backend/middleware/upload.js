@@ -40,7 +40,12 @@ const storage = new CloudinaryStorage({
       // 'raw' for formats Cloudinary can't render — format must still be
       // set explicitly, otherwise the delivery URL has no extension and
       // Cloudinary serves it as generic application/octet-stream.
-      return { folder, resource_type: 'raw', format: ext, allowed_formats: ['docx', 'xlsx'] };
+      // No allowed_formats here deliberately: docx/xlsx are ZIP-based
+      // (OOXML), so Cloudinary's own format detection sees "zip", not
+      // "docx" — pairing that with allowed_formats:['docx','xlsx'] made it
+      // reject every real docx/xlsx upload as an unrecognized format. The
+      // extension is already restricted by fileFilter below.
+      return { folder, resource_type: 'raw', format: ext };
     }
     return { folder, resource_type: 'image', allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'] };
   },
@@ -76,6 +81,17 @@ upload.mediaKind = (originalname) => {
   if (VIDEO_EXT.test(ext)) return 'video';
   if (AUDIO_EXT.test(ext)) return 'audio';
   return 'none';
+};
+
+// Helper for the Downloads route to record the real file type (model's
+// fileType enum: pdf/docx/xlsx/image) instead of always defaulting to pdf.
+upload.docKind = (originalname) => {
+  const ext = (originalname || '').split('.').pop().toLowerCase();
+  if (ext === 'pdf') return 'pdf';
+  if (ext === 'docx') return 'docx';
+  if (ext === 'xlsx') return 'xlsx';
+  if (/^(jpe?g|png|gif|webp)$/.test(ext)) return 'image';
+  return 'pdf';
 };
 
 module.exports = upload;
