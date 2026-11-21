@@ -5,7 +5,7 @@ const Router = {
   // (login.html), not an SPA section, so it only ever exists when someone
   // actually visits it directly.
   pages: ['home', 'about', 'services', 'gallery', 'news', 'testimonials',
-          'faq', 'team', 'events', 'contact', 'dashboard', 'admin', 'privacy'],
+          'faq', 'team', 'events', 'downloads', 'contact', 'dashboard', 'admin', 'privacy'],
 
   init() {
     const path = window.location.pathname.replace(/^\/|\/$/g, '') || 'home';

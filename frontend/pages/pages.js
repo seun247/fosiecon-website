@@ -241,6 +241,52 @@ document.addEventListener('keydown', (e) => {
 });
 
 // ============================================================
+// DOWNLOADS / PUBLICATIONS
+// ============================================================
+window.load_downloads = async function () {
+  const grid = document.getElementById('downloads-grid');
+  if (!grid) return;
+  grid.innerHTML = '<div class="loading">Loading documents…</div>';
+  try {
+    const { data } = await api.downloads.getAll();
+    if (!data.length) { grid.innerHTML = '<p class="empty-state">No documents available yet.</p>'; return; }
+    const icons = { pdf: '📄', docx: '📝', xlsx: '📊', image: '🖼️' };
+    grid.innerHTML = data.map((d) => `
+      <div class="download-card">
+        <div class="dl-icon">${icons[d.fileType] || '📄'}</div>
+        <div class="dl-info">
+          <h4>${esc(d.title)}</h4>
+          <p>${esc(d.description || '')}</p>
+          ${d.fileSize ? `<span class="dl-size">${esc(d.fileSize)} · ${d.downloadCount} views</span>` : ''}
+          <button type="button" class="dl-btn" onclick='viewDocument(${jsAttr(d._id)}, ${jsAttr(d.title)}, ${jsAttr(d.filePath)})'>👁 View Document</button>
+        </div>
+      </div>`).join('');
+  } catch (err) {
+    grid.innerHTML = `<p class="error-state">Could not load documents. ${esc(err.message)}</p>`;
+  }
+};
+
+window.viewDocument = async function (id, title, path) {
+  const modal = document.getElementById('doc-modal');
+  const frame = document.getElementById('doc-modal-frame');
+  if (!modal || !frame) return;
+  document.getElementById('doc-modal-title').textContent = title || 'Document';
+  // Most mobile browsers have no built-in PDF renderer for iframes — Google's
+  // viewer renders the document as a web page instead, so it works
+  // consistently across devices rather than only on desktop Chrome/Edge.
+  frame.src = `https://docs.google.com/viewer?url=${encodeURIComponent(path)}&embedded=true`;
+  modal.classList.add('open');
+  try { await api.downloads.trackGet(id); } catch {}
+};
+
+window.closeDocViewer = function () {
+  const modal = document.getElementById('doc-modal');
+  const frame = document.getElementById('doc-modal-frame');
+  if (modal) modal.classList.remove('open');
+  if (frame) frame.src = '';
+};
+
+// ============================================================
 // TESTIMONIALS
 // ============================================================
 window.load_testimonials = async function () {

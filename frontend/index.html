@@ -62,6 +62,18 @@
   </div>
 </div>
 
+<!-- DOCUMENT VIEWER MODAL (view-only — no download affordance) -->
+<div class="modal-overlay" id="doc-modal" onclick="if(event.target===this) closeDocViewer()">
+  <div class="modal-box doc-modal-box">
+    <button class="modal-close" onclick="closeDocViewer()">✕</button>
+    <h2 id="doc-modal-title"></h2>
+    <div class="doc-viewer-wrap">
+      <iframe id="doc-modal-frame" class="doc-viewer-frame" src="" title="Document viewer"></iframe>
+    </div>
+    <p class="doc-viewer-note">This document is available for viewing only.</p>
+  </div>
+</div>
+
 <!-- GALLERY LIGHTBOX MODAL -->
 <div class="gallery-modal" id="gallery-modal" onclick="if(event.target===this) closeGalleryModal()">
   <div class="gallery-modal-box">
@@ -90,6 +102,7 @@
     <li><a data-page="services"     onclick="Router.navigate('services')">Services</a></li>
     <li><a data-page="news"         onclick="Router.navigate('news')">News</a></li>
     <li><a data-page="team"         onclick="Router.navigate('team')">Members</a></li>
+    <li><a data-page="downloads"    onclick="Router.navigate('downloads')">Publications</a></li>
     <li><a data-page="faq"          onclick="Router.navigate('faq')">FAQ</a></li>
     <li><a data-page="contact"      onclick="Router.navigate('contact')">Contact</a></li>
     <li><a id="nav-dashboard-link" data-page="dashboard" onclick="Router.navigate('dashboard')" style="display:none">My Account</a></li>
@@ -109,6 +122,7 @@
   <a onclick="Router.navigate('testimonials');closeMenu()">💬 Testimonials</a>
   <a onclick="Router.navigate('team');closeMenu()">👥 Member Commissions</a>
   <a onclick="Router.navigate('events');closeMenu()">📅 Events</a>
+  <a onclick="Router.navigate('downloads');closeMenu()">📄 Publications</a>
   <a onclick="Router.navigate('faq');closeMenu()">❓ FAQ</a>
   <a onclick="Router.navigate('contact');closeMenu()">📞 Contact</a>
 </div>
@@ -308,6 +322,16 @@
     <div class="section-inner">
       <div class="section-header"><div class="header-box"><div class="eyebrow">Calendar</div><h2>Events &amp; Activities</h2></div></div>
       <div class="events-list" id="events-container"><div class="loading">Loading events…</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ DOWNLOADS / PUBLICATIONS ═══════════════ -->
+<section class="page-section" id="page-downloads">
+  <div class="section">
+    <div class="section-inner">
+      <div class="section-header"><div class="header-box"><div class="eyebrow">Resources</div><h2>Publications</h2></div><p>Official FOSIECON documents, communiqués, guidelines, and reports.</p></div>
+      <div class="downloads-grid" id="downloads-grid"><div class="loading">Loading documents…</div></div>
     </div>
   </div>
 </section>
