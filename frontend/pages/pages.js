@@ -4,6 +4,11 @@
 function setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
 function esc(s) { return (s || '').toString().replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' }) : ''; }
+// Safely embeds a free-text value (e.g. a user-typed title) inside a
+// single-quoted onclick="" attribute — JSON.stringify handles JS-string
+// escaping, then any literal ' is turned into an HTML entity so it can't
+// prematurely close the surrounding attribute.
+function jsAttr(value) { return JSON.stringify(value).replace(/'/g, '&#39;'); }
 
 // ============================================================
 // HOME
@@ -130,26 +135,28 @@ window.load_gallery = async function () {
     const { data } = await api.gallery.getAll();
     if (!data.length) { container.innerHTML = '<p class="empty-state">No gallery items yet.</p>'; return; }
 
+    // Grouped by title — the group name typed when the photos were
+    // uploaded — not by category. Category would merge unrelated batches
+    // of photos together just because they happen to share a category.
     const groups = {};
     data.forEach((item) => {
-      const cat = (item.category || 'other').replace(/_/g, ' ');
-      (groups[cat] = groups[cat] || []).push(item);
+      const key = item.title || 'Untitled';
+      (groups[key] = groups[key] || []).push(item);
     });
     window.__galleryGroups = groups;
 
-    container.innerHTML = Object.entries(groups).map(([cat, items], i) => `
+    container.innerHTML = Object.entries(groups).map(([title, items], i) => `
       <div class="gallery-group ${i === 0 ? 'open' : ''}">
         <div class="gallery-group-header" onclick="this.parentElement.classList.toggle('open')">
-          <span>${esc(cat)} (${items.length})</span>
+          <span>📸 ${esc(title)} <span class="gallery-group-count">(${items.length})</span></span>
           <span class="gallery-toggle">▾</span>
         </div>
         <div class="gallery-group-body">
           ${items.map((item, idx) => `
-            <div class="gallery-item${item.mediaType === 'video' ? ' video-item' : ''}" onclick="openGalleryItem('${cat}', ${idx})">
+            <div class="gallery-item${item.mediaType === 'video' ? ' video-item' : ''}" onclick="openGalleryItem(${jsAttr(title)}, ${idx})">
               ${item.thumbnailPath || item.filePath
                 ? `<img src="${item.thumbnailPath || item.filePath}" alt="${esc(item.title)}">`
                 : `<div class="gallery-placeholder">🖼️<span>${esc(item.title)}</span></div>`}
-              <div class="gallery-caption">${esc(item.title)}</div>
             </div>`).join('')}
         </div>
       </div>`).join('');
@@ -160,8 +167,8 @@ window.load_gallery = async function () {
 
 // Opens the lightbox on a specific image within its group, as a navigable
 // slideshow over the whole group — not just that one image in isolation.
-window.openGalleryItem = function (cat, idx) {
-  window.__galleryCat = cat;
+window.openGalleryItem = function (title, idx) {
+  window.__galleryGroupTitle = title;
   window.__galleryIdx = idx;
   renderGalleryModalItem();
   document.getElementById('gallery-modal').classList.add('open');
@@ -172,7 +179,7 @@ window.openGalleryItem = function (cat, idx) {
 };
 
 function renderGalleryModalItem() {
-  const items = (window.__galleryGroups || {})[window.__galleryCat] || [];
+  const items = (window.__galleryGroups || {})[window.__galleryGroupTitle] || [];
   const item = items[window.__galleryIdx];
   if (!item) return;
 
@@ -194,7 +201,7 @@ function renderGalleryModalItem() {
 }
 
 window.galleryModalNav = function (dir) {
-  const items = (window.__galleryGroups || {})[window.__galleryCat] || [];
+  const items = (window.__galleryGroups || {})[window.__galleryGroupTitle] || [];
   if (!items.length) return;
   window.__galleryIdx = (window.__galleryIdx + dir + items.length) % items.length;
   renderGalleryModalItem();
@@ -205,7 +212,7 @@ window.galleryModalNav = function (dir) {
 // automatically while a video is showing, so it never interrupts playback.
 function startGallerySlideshow() {
   clearInterval(galleryTimer);
-  const items = (window.__galleryGroups || {})[window.__galleryCat] || [];
+  const items = (window.__galleryGroups || {})[window.__galleryGroupTitle] || [];
   const current = items[window.__galleryIdx];
   if (!galleryAutoplay || items.length <= 1 || (current && current.mediaType === 'video')) return;
   galleryTimer = setInterval(() => galleryModalNav(1), 4000);
@@ -958,15 +965,41 @@ async function adminRenderGallery() {
   await adminLoadGalleryList();
 }
 
+let adminGalleryCache = [];
+
+// Grouped by title (the group name used at upload) instead of a flat grid
+// of every single photo — the flat view became unmanageable once more than
+// a handful of groups had been uploaded.
 async function adminLoadGalleryList() {
   try {
     const { data } = await api.gallery.getAll();
-    document.getElementById('admin-gallery-list').innerHTML = data.length ? `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;">${data.map((g) => `
-      <div style="text-align:center;">
-        <img src="${g.thumbnailPath || g.filePath}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">
-        <div style="font-size:12px;margin-bottom:4px;">${esc(g.title)}</div>
-        <button class="btn-danger" style="padding:4px 8px;font-size:11px;" onclick="adminDeleteGallery('${g._id}')">Delete</button>
-      </div>`).join('')}</div>` : '<p class="empty-state">No gallery items yet.</p>';
+    adminGalleryCache = data;
+    if (!data.length) { document.getElementById('admin-gallery-list').innerHTML = '<p class="empty-state">No gallery photos uploaded yet.</p>'; return; }
+
+    const groups = {};
+    data.forEach((item) => {
+      const key = item.title || 'Untitled';
+      (groups[key] = groups[key] || []).push(item);
+    });
+
+    document.getElementById('admin-gallery-list').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;">
+        <tr style="border-bottom:2px solid var(--border);font-size:12px;color:var(--slate-light);text-align:left;">
+          <th style="padding:8px 10px;">Group Title</th>
+          <th style="padding:8px 10px;">Category</th>
+          <th style="padding:8px 10px;">Photos</th>
+          <th style="padding:8px 10px;"></th>
+        </tr>
+        ${Object.entries(groups).map(([title, items]) => `
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:10px;font-size:13px;">${esc(title)}</td>
+            <td style="padding:10px;font-size:13px;color:var(--slate-light);">${esc((items[0].category || '').replace(/_/g, ' '))}</td>
+            <td style="padding:10px;font-size:13px;">${items.length}</td>
+            <td style="padding:10px;text-align:right;white-space:nowrap;">
+              <button class="btn-danger" style="padding:5px 10px;font-size:12px;" onclick="adminDeleteGalleryGroup(${jsAttr(title)})">Delete Group</button>
+            </td>
+          </tr>`).join('')}
+      </table>`;
   } catch (err) { document.getElementById('admin-gallery-list').innerHTML = `<p class="error-state">${esc(err.message)}</p>`; }
 }
 
@@ -1014,10 +1047,16 @@ window.adminSaveGallery = async function (e) {
   }
 };
 
-window.adminDeleteGallery = async function (id) {
-  if (!confirm('Delete this gallery item?')) return;
-  await api.gallery.delete(id);
-  adminLoadGalleryList();
+window.adminDeleteGalleryGroup = async function (title) {
+  const items = adminGalleryCache.filter((i) => (i.title || 'Untitled') === title);
+  if (!items.length) return;
+  if (!confirm(`Delete all ${items.length} photo(s) in "${title}"? This cannot be undone.`)) return;
+  try {
+    await Promise.all(items.map((i) => api.gallery.delete(i._id)));
+    adminLoadGalleryList();
+  } catch (err) {
+    alert('Could not delete: ' + err.message);
+  }
 };
 
 // ── Events tab ───────────────────────────────────────────────
