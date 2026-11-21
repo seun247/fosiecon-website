@@ -153,7 +153,7 @@ window.load_gallery = async function () {
         </div>
         <div class="gallery-group-body">
           ${items.map((item, idx) => `
-            <div class="gallery-item${item.mediaType === 'video' ? ' video-item' : ''}" onclick="openGalleryItem(${jsAttr(title)}, ${idx})">
+            <div class="gallery-item${item.mediaType === 'video' ? ' video-item' : ''}" onclick='openGalleryItem(${jsAttr(title)}, ${idx})'>
               ${item.thumbnailPath || item.filePath
                 ? `<img src="${item.thumbnailPath || item.filePath}" alt="${esc(item.title)}">`
                 : `<div class="gallery-placeholder">🖼️<span>${esc(item.title)}</span></div>`}
@@ -1042,7 +1042,7 @@ async function adminLoadGalleryList() {
             <td style="padding:10px;font-size:13px;color:var(--slate-light);">${esc((items[0].category || '').replace(/_/g, ' '))}</td>
             <td style="padding:10px;font-size:13px;">${items.length}</td>
             <td style="padding:10px;text-align:right;white-space:nowrap;">
-              <button class="btn-danger" style="padding:5px 10px;font-size:12px;" onclick="adminDeleteGalleryGroup(${jsAttr(title)})">Delete Group</button>
+              <button class="btn-danger" style="padding:5px 10px;font-size:12px;" onclick='adminDeleteGalleryGroup(${jsAttr(title)})'>Delete Group</button>
             </td>
           </tr>`).join('')}
       </table>`;
