@@ -35,7 +35,48 @@ window.load_home = async function () {
     const grid = document.getElementById('home-news-grid');
     if (grid) grid.innerHTML = `<p class="error-state">Could not load news.</p>`;
   }
+
+  loadRecentMoments();
 };
+
+// Auto-scrolling strip of the most recently uploaded gallery photos. The
+// item list is duplicated once so a CSS animation sliding it exactly 50%
+// loops seamlessly — skipped under prefers-reduced-motion, where a static
+// duplicated row would look like a bug rather than a loop.
+async function loadRecentMoments() {
+  const track = document.getElementById('recent-strip-track');
+  if (!track) return;
+  try {
+    const { data } = await api.gallery.getAll();
+    if (!data.length) { track.innerHTML = '<p class="empty-state" style="padding:0 5%;">No photos yet.</p>'; return; }
+
+    const recent = data.slice(0, 10);
+    const itemsHtml = recent.map((item) => `
+      <div class="recent-strip-item">
+        <img src="${item.thumbnailPath || item.filePath}" alt="${esc(item.title)}">
+        <div class="recent-strip-caption">${esc(item.title)}</div>
+      </div>`).join('');
+
+    const reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      track.innerHTML = itemsHtml;
+      document.getElementById('recent-strip').style.overflowX = 'auto';
+      return;
+    }
+    track.innerHTML = itemsHtml + itemsHtml;
+
+    // Scale the animation duration to the content's actual width so the
+    // scroll speed looks the same regardless of how many photos exist,
+    // rather than a fixed duration making more photos fly by faster.
+    requestAnimationFrame(() => {
+      const singleSetWidth = track.scrollWidth / 2;
+      const pxPerSecond = 40;
+      track.style.animationDuration = `${Math.max(singleSetWidth / pxPerSecond, 8)}s`;
+    });
+  } catch (err) {
+    track.innerHTML = '';
+  }
+}
 
 // ============================================================
 // ABOUT

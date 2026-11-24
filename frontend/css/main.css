@@ -365,6 +365,17 @@ body.admin-mode .page-section.active{margin-top:0;}
 .service-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--navy);transform:scaleX(0);transform-origin:left;transition:.3s;pointer-events:none;}
 .service-card:hover{box-shadow:var(--shadow);transform:translateY(-3px);background:var(--white);}
 .service-card:hover::before{transform:scaleX(1);}
+
+/* ── Recent Moments (homepage auto-scrolling strip) ──────────── */
+.recent-strip{overflow:hidden;margin-top:8px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);}
+.recent-strip-track{display:flex;gap:16px;width:max-content;animation:recent-scroll 40s linear infinite;}
+.recent-strip:hover .recent-strip-track{animation-play-state:paused;}
+.recent-strip-item{position:relative;width:220px;height:150px;border-radius:10px;overflow:hidden;flex-shrink:0;box-shadow:var(--shadow);}
+.recent-strip-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;}
+.recent-strip-item:hover img{transform:scale(1.08);}
+.recent-strip-caption{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;background:linear-gradient(0deg,rgba(8,29,63,.85),transparent);color:var(--white);font-size:11px;font-weight:600;line-height:1.3;}
+@keyframes recent-scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@media (max-width:580px){.recent-strip-item{width:150px;height:105px;}}
 .service-icon{width:52px;height:52px;background:var(--navy-light);border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:24px;}
 .service-card h3{font-family:var(--font-display);font-size:1.15rem;color:var(--navy);margin-bottom:10px;}
 .service-card p{font-size:14px;color:var(--slate-light);line-height:1.65;}
@@ -454,7 +465,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.8);padding:56px 5% 24px;}
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero-badge, .hero h1, .hero-sub, .hero-btns, .hero-visual, .reveal, .page-enter, .page-enter-active {
+  .hero-badge, .hero h1, .hero-sub, .hero-btns, .hero-visual, .reveal, .page-enter, .page-enter-active, .recent-strip-track {
     animation: none !important; transition: none !important; opacity: 1 !important; transform: none !important;
   }
 }
