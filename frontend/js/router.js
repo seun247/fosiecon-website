@@ -109,13 +109,6 @@ const Auth = {
     return res.user;
   },
 
-  async register(data) {
-    const res = await api.auth.register(data);
-    localStorage.setItem(this.TOKEN_KEY, res.token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(res.user));
-    return res.user;
-  },
-
   async logout() {
     try { await api.auth.logout(); } catch (e) { /* non-blocking */ }
     localStorage.removeItem(this.TOKEN_KEY);

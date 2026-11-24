@@ -1399,7 +1399,8 @@ async function adminRenderUsers() {
     el.innerHTML = '<p class="empty-state">Only a super admin can manage users and view activity logs.</p>';
     return;
   }
-  el.innerHTML = adminFormShell('Add Staff / Admin Account', `
+  el.innerHTML = adminFormShell('Add Account', `
+    <p style="font-size:12px;color:var(--slate-light);margin-bottom:16px;">There's no public sign-up — every account (including member-state logins) is created here, and you hand the credentials to that person directly.</p>
     <form id="admin-staff-form" onsubmit="adminSaveStaff(event)">
       <div class="form-row">
         <div class="form-group"><label>Full Name</label><input type="text" id="as-name" required></div>
@@ -1407,12 +1408,29 @@ async function adminRenderUsers() {
       </div>
       <div class="form-row">
         <div class="form-group"><label>Password</label><input type="password" id="as-password" required minlength="8"></div>
-        <div class="form-group"><label>Role</label><select id="as-role"><option value="staff">Staff</option><option value="admin">Admin</option><option value="super_admin">Super Admin</option></select></div>
+        <div class="form-group"><label>Role</label>
+          <select id="as-role" onchange="document.getElementById('as-commission-group').style.display = this.value === 'member' ? 'block' : 'none'">
+            <option value="member">Member (Commission Representative)</option>
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+            <option value="super_admin">Super Admin</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" id="as-commission-group"><label>Representing Commission (optional)</label>
+        <select id="as-commission"><option value="">— Select —</option></select>
       </div>
       <button class="btn-primary" type="submit">Create Account</button>
       <div class="form-error" id="as-error"></div>
     </form>`);
   el.innerHTML += '<div id="admin-users-list"><div class="loading">Loading…</div></div>';
+
+  try {
+    const { data: members } = await api.members.getAll();
+    const select = document.getElementById('as-commission');
+    if (select) select.innerHTML = '<option value="">— Select —</option>' + members.map((m) => `<option value="${m._id}">${esc(m.state)} — ${esc(m.commissionName)}</option>`).join('');
+  } catch (err) { /* optional field — fine if it stays empty */ }
+
   await adminLoadUsersList();
 }
 
@@ -1437,8 +1455,10 @@ window.adminSaveStaff = async function (e) {
       email: document.getElementById('as-email').value,
       password: document.getElementById('as-password').value,
       role: document.getElementById('as-role').value,
+      memberCommission: document.getElementById('as-commission').value || undefined,
     });
     document.getElementById('admin-staff-form').reset();
+    document.getElementById('as-commission-group').style.display = 'block';
     adminLoadUsersList();
   } catch (err) { errorEl.textContent = err.message; errorEl.style.display = 'block'; }
 };

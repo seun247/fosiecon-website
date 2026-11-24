@@ -44,7 +44,6 @@ const api = {
     login:          (data) => api.post('/auth/login', data),
     logout:         ()     => api.post('/auth/logout', {}),
     me:             ()     => api.get('/auth/me'),
-    register:       (data) => api.post('/auth/register', data),
     createStaff:    (data) => api.post('/auth/staff', data),
     updateUser:     (id, data) => api.put(`/auth/users/${id}`, data),
     changePassword: (data) => api.put('/auth/change-password', data),
