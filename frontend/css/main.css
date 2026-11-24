@@ -88,7 +88,7 @@ h1,h2,h3,h4 { line-height: 1.2; }
 }
 .chairman-photo-wrap { text-align: center; }
 .chairman-photo {
-  width: 180px; height: 180px; border-radius: 50%; object-fit: cover;
+  width: 180px; height: 180px; border-radius: 50%; object-fit: cover; object-position: top;
   border: 4px solid var(--navy); box-shadow: 0 8px 32px rgba(11,42,91,.2);
 }
 .chairman-photo.large { width: 220px; height: 220px; }
