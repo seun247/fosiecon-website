@@ -280,7 +280,7 @@ h1,h2,h3,h4 { line-height: 1.2; }
 /* ── Auth (Login / Register) split panel ─────────────────────── */
 .auth-wrap { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 70px - 38px); }
 .auth-brand-panel {
-  background: linear-gradient(160deg, var(--navy) 0%, #081D3F 100%);
+  background: linear-gradient(160deg, var(--sky) 0%, var(--navy) 100%);
   color: var(--white); display: flex; flex-direction: column; align-items: center;
   justify-content: center; text-align: center; padding: 56px 48px; position: relative; overflow: hidden;
 }
