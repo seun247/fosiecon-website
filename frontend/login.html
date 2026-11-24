@@ -13,6 +13,37 @@
 </head>
 <body>
 
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a class="nav-brand" href="/">
+    <div class="nav-seal"><img src="images/logo.jpg" alt="FOSIECON logo"></div>
+    <div class="nav-title">FOSIECON<span>Forum of State Independent Electoral Commissions</span></div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="about">About</a></li>
+    <li><a href="services">Services</a></li>
+    <li><a href="news">News</a></li>
+    <li><a href="team">Members</a></li>
+    <li><a href="downloads">Publications</a></li>
+    <li><a href="faq">FAQ</a></li>
+    <li><a href="contact">Contact</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleMenu()" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div id="mobile-menu">
+  <a href="/">🏠 Home</a>
+  <a href="about">ℹ️ About Us</a>
+  <a href="services">⚙️ Services</a>
+  <a href="news">📰 News</a>
+  <a href="team">👥 Member Commissions</a>
+  <a href="downloads">📄 Publications</a>
+  <a href="faq">❓ FAQ</a>
+  <a href="contact">📞 Contact</a>
+</div>
+
 <section class="page-section active" id="page-login">
   <div class="auth-wrap">
     <div class="auth-brand-panel">
@@ -47,5 +78,8 @@
 <script src="js/api.js"></script>
 <script src="js/router.js"></script>
 <script src="js/auth-page.js"></script>
+<script>
+  function toggleMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+</script>
 </body>
 </html>
