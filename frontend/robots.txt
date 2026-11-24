@@ -1,7 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /api/
-Disallow: /#admin
-Disallow: /#login
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login
 
-Sitemap: https://fosiecon.org.ng/sitemap.xml
+Sitemap: https://fosieconng.org/sitemap.xml

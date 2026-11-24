@@ -1,4 +1,88 @@
 // js/router.js — Client-side page router
+
+// Per-page <title>/description/canonical — without this every route served
+// the exact same tags (all from the one shared index.html), which is weak
+// for search since Google then sees identical titles/snippets for every
+// page on the site instead of ones that actually describe that page.
+const PAGE_SEO = {
+  home: {
+    title: 'FOSIECON | Forum of State Independent Electoral Commissions of Nigeria',
+    description: "FOSIECON brings together Nigeria's 36 State Independent Electoral Commissions under one umbrella for communication, planning, and best-practice sharing on electoral processes, in line with the Constitution and the Electoral Act 2026.",
+  },
+  about: {
+    title: 'About FOSIECON | Forum of State Independent Electoral Commissions of Nigeria',
+    description: "FOSIECON was established in 2000 to bring together Nigeria's 36 State Independent Electoral Commissions for easy communication and planning on Local Government electoral processes.",
+  },
+  services: {
+    title: 'Our Services | FOSIECON',
+    description: 'Electoral management support, election observation and monitoring, support for sister states, and best-practice sharing across all 36 State Independent Electoral Commissions.',
+  },
+  team: {
+    title: 'Member Commissions | FOSIECON',
+    description: "Directory of Nigeria's 36 State Independent Electoral Commissions and the Forum's leadership.",
+  },
+  news: {
+    title: 'News & Communiqués | FOSIECON',
+    description: 'Latest news, communiqués, and press releases from the Forum of State Independent Electoral Commissions of Nigeria.',
+  },
+  gallery: {
+    title: 'Photo & Video Gallery | FOSIECON',
+    description: 'Photos and videos from FOSIECON events, meetings, and election observation activities.',
+  },
+  events: {
+    title: 'Events & Activities | FOSIECON',
+    description: "Upcoming and past events from the Forum of State Independent Electoral Commissions of Nigeria.",
+  },
+  downloads: {
+    title: 'Publications | FOSIECON',
+    description: 'Official FOSIECON documents, communiqués, guidelines, and reports.',
+  },
+  testimonials: {
+    title: 'Testimonials | FOSIECON',
+    description: "What member commissions and partners say about FOSIECON.",
+  },
+  faq: {
+    title: 'Frequently Asked Questions | FOSIECON',
+    description: 'Answers to common questions about FOSIECON, its membership, and its mandate.',
+  },
+  contact: {
+    title: 'Contact FOSIECON',
+    description: 'Get in touch with the Forum of State Independent Electoral Commissions of Nigeria.',
+  },
+  privacy: {
+    title: 'Privacy Policy & Terms | FOSIECON',
+    description: 'Privacy policy and terms of use for the FOSIECON website.',
+  },
+};
+// Pages that exist in this same index.html but are never meant to appear in
+// search results (behind login, or just not public content).
+const NOINDEX_PAGES = new Set(['admin', 'dashboard']);
+
+function updatePageSeo(pageId) {
+  const meta = PAGE_SEO[pageId];
+  if (meta) {
+    document.title = meta.title;
+    const descTag = document.querySelector('meta[name="description"]');
+    if (descTag) descTag.setAttribute('content', meta.description);
+  }
+
+  let canonical = document.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    document.head.appendChild(canonical);
+  }
+  canonical.href = pageId === 'home' ? 'https://fosieconng.org/' : `https://fosieconng.org/${pageId}`;
+
+  let robotsTag = document.querySelector('meta[name="robots"]');
+  if (!robotsTag) {
+    robotsTag = document.createElement('meta');
+    robotsTag.name = 'robots';
+    document.head.appendChild(robotsTag);
+  }
+  robotsTag.setAttribute('content', NOINDEX_PAGES.has(pageId) ? 'noindex, nofollow' : 'index, follow');
+}
+
 const Router = {
   currentPage: 'home',
   // 'login' is intentionally not in this list — it's a separate static page
@@ -44,6 +128,7 @@ const Router = {
     const section = document.getElementById('page-' + pageId);
     if (!section) return;
 
+    updatePageSeo(pageId);
     section.classList.add('active');
     // Fade/rise the new page in — two rAFs so the browser commits the
     // "entering" state (opacity 0) before the "active" state is added,

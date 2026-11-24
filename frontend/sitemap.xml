@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://fosieconng.org/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://fosieconng.org/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://fosieconng.org/services</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://fosieconng.org/team</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://fosieconng.org/news</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://fosieconng.org/gallery</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://fosieconng.org/events</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://fosieconng.org/downloads</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://fosieconng.org/testimonials</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://fosieconng.org/faq</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://fosieconng.org/contact</loc><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://fosieconng.org/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+</urlset>
