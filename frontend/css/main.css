@@ -106,16 +106,15 @@ h1,h2,h3,h4 { line-height: 1.2; }
 
 /* Chairman full profile card (Team page) — image + name/badge float together,
    with the biography text wrapping around them, at every screen size. */
-.chairman-full-card { display: block; text-align: left; overflow: hidden; background: linear-gradient(135deg, var(--navy) 0%, #081D3F 100%); border-radius: 16px; padding: 48px; margin-bottom: 48px; }
+.chairman-full-card { display: block; text-align: left; overflow: hidden; background: var(--ivory); border: 1px solid var(--border); border-radius: 16px; padding: 48px; margin-bottom: 48px; }
 .chairman-full-card .chairman-photo-wrap.large { float: left; text-align: left; margin: 0 32px 16px 0; }
 .chairman-full-card .chairman-photo.large,
 .chairman-full-card .chairman-photo-placeholder.large { width: 170px; height: 170px; }
-.chairman-full-card .eyebrow { background: rgba(255,255,255,.15); color: #CFE0FF; }
-.chairman-full-card h2 { color: var(--white); font-family: var(--font-display); font-size: 1.7rem; margin-bottom: 8px; }
-.chairman-role-badge { display: inline-block; background: var(--white); color: var(--navy); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 16px; }
-.chairman-full-card p { color: rgba(255,255,255,.85); font-size: 15px; line-height: 1.75; text-align: justify; }
+.chairman-full-card h2 { color: var(--navy); font-family: var(--font-display); font-size: 1.7rem; margin-bottom: 8px; }
+.chairman-role-badge { display: inline-block; background: var(--navy); color: var(--white); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 16px; }
+.chairman-full-card p { color: var(--slate-light); font-size: 15px; line-height: 1.75; text-align: justify; }
 .chairman-details { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
-.chairman-details > div { color: rgba(255,255,255,.75); font-size: 13px; }
+.chairman-details > div { color: var(--slate-light); font-size: 13px; }
 
 /* ── Team grid ────────────────────────────────────────────── */
 .team-grid-inner { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; }
