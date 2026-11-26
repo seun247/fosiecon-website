@@ -42,6 +42,7 @@ h1,h2,h3,h4 { line-height: 1.2; }
 .header-box h2 {
   font-family: var(--font-display); font-size: clamp(1.6rem, 3.2vw, 2.4rem);
   font-weight: 700; color: var(--navy); margin: 0; line-height: 1.25;
+  text-transform: uppercase; letter-spacing: .03em;
 }
 
 /* ── Layout ───────────────────────────────────────────────── */
